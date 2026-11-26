@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>안양 집 자금조달계획서</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans+KR:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:light dark;
+--bg:light-dark(#ffffff,#0c1615);--panel:light-dark(#f2f7f6,#122220);--ink:light-dark(#14201f,#e3eeec);--mute:light-dark(#5b6b69,#93a6a3);
+--line:light-dark(#d8e3e1,#24403c);--ac:light-dark(#0f766e,#3cc2b3);--acs:light-dark(#d7efec,#173a36);
+--ok:light-dark(#1d7a3e,#56c983);--okb:light-dark(#e3f4e8,#14301f);--warn:light-dark(#8a6200,#e6b84a);--warnb:light-dark(#fdf3d6,#33290f);
+--bad:light-dark(#b42318,#f07a6e);--badb:light-dark(#fde6e3,#3a1714);
+--c1:light-dark(#0f766e,#3cc2b3);--c2:light-dark(#7fb8b1,#2c7a71);--c3:light-dark(#e3ecea,#1c2f2c)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "IBM Plex Sans KR",system-ui,sans-serif;overflow-x:clip}
+.num,td.n,input[type=number],.big{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+header{padding:28px max(4vw,16px) 18px;border-bottom:1px solid var(--line)}
+h1{margin:0;font-size:clamp(28px,4vw,40px);line-height:1.1;text-wrap:balance}
+header p{margin:8px 0 0;color:var(--mute);max-width:70ch}
+nav.top{display:flex;gap:4px;padding:10px max(4vw,16px);border-bottom:1px solid var(--line);flex-wrap:wrap}nav.top a{padding:10px 14px;border-radius:8px;color:var(--ink);text-decoration:none;font-weight:600;min-height:44px}nav.top a[aria-current=page]{background:var(--ac);color:light-dark(#fff,#04201d)}nav.top a:not([aria-current]):hover{background:var(--acs)}
+@media(max-width:600px){table{font-size:13px}.stack thead{display:none}.stack tr{display:grid;padding-block:10px;border-bottom:1px solid var(--line)}.stack td{display:flow-root;border:0;padding:3px 0;padding-inline-start:8em;text-align:start}.stack td.n{text-align:right}.stack td::before{content:attr(data-l);float:inline-start;width:7.5em;margin-inline-start:-8em;white-space:normal;color:var(--mute);text-align:left}.stack td:empty{display:none}}
+main{max-width:960px;padding:8px max(4vw,16px) 48px}
+.per{display:grid;grid-template-columns:170px minmax(0,1fr);gap:16px;padding:18px 0;border-bottom:1px solid var(--line)}
+.when b{display:block;font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:20px;color:var(--ac);white-space:nowrap}.when span{color:var(--mute);font-size:15px}
+ol{margin:0;padding-left:1.4em;display:grid;gap:6px}li b{font-weight:700}
+.chk{display:inline-block;font-size:13px;font-weight:600;padding:1px 8px;border-radius:99px;background:var(--warnb);color:var(--warn);white-space:nowrap}
+.var{margin-top:22px;border-left:4px solid var(--warn);background:var(--warnb);border-radius:8px;padding:14px 18px}.var h2{margin:0 0 6px;font-size:18px}
+.note{color:var(--mute);font-size:14px;margin-top:18px}
+@media(max-width:600px){.per{grid-template-columns:minmax(0,1fr);gap:6px}}
+
+h2{font-size:20px;margin:30px 0 10px}
+table{width:100%;border-collapse:collapse;font-size:15px}
+th,td{padding:9px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+thead th{font-size:13px;color:var(--mute);font-weight:600;background:var(--panel)}
+td.n{text-align:right;white-space:nowrap}td.n small{display:block;color:var(--mute);font-size:12px}
+td.no{font-family:"IBM Plex Mono",ui-monospace,monospace;color:var(--ac);font-weight:600;white-space:nowrap}
+tr.sub td{background:var(--panel);font-weight:700}tr.tot td{background:var(--acs);font-weight:700;border-bottom:2px solid var(--ac)}
+tr.zero td{color:var(--mute)}
+.blank{display:inline-block;font-size:13px;font-weight:600;padding:1px 8px;border-radius:99px;background:var(--panel);color:var(--mute);border:1px dashed var(--line);white-space:nowrap}
+.okb{display:inline-block;font-size:13px;font-weight:600;padding:1px 8px;border-radius:99px;background:var(--okb);color:var(--ok)}
+.box{margin:16px 0;border-left:4px solid var(--ac);background:var(--panel);border-radius:8px;padding:14px 18px}.box p{margin:4px 0}
+.alert{border-left-color:var(--warn);background:var(--warnb)}
+ul{margin:0;padding-left:1.3em;display:grid;gap:5px}
+a{color:var(--ac)}
+</style>
+</head>
+<body>
+<nav class="top"><a href="./">자금계산기</a><a href="schedule.html">일정표</a><a href="fund.html" aria-current="page">자금조달계획서</a></nav>
+<header>
+<h1>자금조달계획서 미리 채우기</h1>
+<p>「주택취득자금 조달 및 입주계획서」(부동산 거래신고법 시행규칙 별지 제1호의3서식, 2026.2.6. 개정) 칸 순서대로, 계산기 기본값(매매가 5억 8,000만) 기준으로 채웠습니다. 계약서가 나오면 매매가와 금액을 다시 맞춥니다.</p>
+</header>
+<main>
+
+<div class="box">
+<p><b>언제, 어디에 내나</b></p>
+<ul>
+<li>동안구는 투기과열지구이자 토지거래허가구역이라 <b>매매가와 상관없이 계획서 + 증빙서류</b>를 냅니다. 토허구역 주택 거래에 증빙 첨부가 의무가 된 건 2026.2.10. 시행 개정부터입니다.</li>
+<li><b>계약일로부터 30일 안</b>에 실거래 신고와 함께 냅니다. 실거래 신고서가 먼저 접수돼야 낼 수 있습니다. 부동산거래관리시스템(rtms.molit.go.kr)에서도 됩니다.</li>
+<li>토지거래허가를 신청할 때도 별도 서식인 <b>「토지취득자금 조달계획서」</b>를 냅니다(서울시 안내 기준). 그래서 12/11 허가 신청 전에 이 숫자가 정리돼 있어야 하고, 허가 때와 계약 후 낼 때 숫자가 서로 맞아야 합니다. <span class="chk">확인 필요</span> 동안구청에서 허가 신청 단계에도 증빙을 요구하는지</li>
+<li>안 내거나 거짓으로 쓰면 과태료가 나오고, 내용은 국세청에도 통보됩니다.</li>
+</ul>
+</div>
+
+<h2>제출인 (매수인)</h2>
+<table class="stack"><thead><tr><th>칸</th><th>적을 내용</th></tr></thead><tbody>
+<tr><td data-l="칸">성명</td><td data-l="내용"><span class="blank">직접 기재</span></td></tr>
+<tr><td data-l="칸">주민등록번호</td><td data-l="내용"><span class="blank">직접 기재</span></td></tr>
+<tr><td data-l="칸">주소</td><td data-l="내용"><span class="blank">직접 기재</span> 제출 시점 주민등록상 주소(지금 전셋집)</td></tr>
+<tr><td data-l="칸">(휴대)전화번호</td><td data-l="내용"><span class="blank">직접 기재</span></td></tr>
+</tbody></table>
+<p class="note">개인정보는 이 페이지에 넣지 않았습니다. 집 주소, 계약일, 최종 매매가도 계약 후 채웁니다.</p>
+
+<h2>① 자금조달계획: 자기자금</h2>
+<table class="stack"><thead><tr><th>번호</th><th>서식 칸</th><th>체크·적을 내용</th><th class="n">금액</th><th>첨부할 증빙</th></tr></thead><tbody>
+<tr><td class="no" data-l="번호">②</td><td data-l="서식 칸">금융기관 예금액</td><td data-l="체크·내용">본인 명의 예금·적금. 해외 송금 없음</td><td class="n" data-l="금액">100,000,000원<small>1억</small></td><td data-l="증빙">예금잔액증명서 (통장 거래내역도 준비)</td></tr>
+<tr class="zero"><td class="no" data-l="번호">③</td><td data-l="서식 칸">주식·채권·가상화폐 매각대금</td><td data-l="체크·내용">0원으로 둠. <span class="chk">확인 필요</span> 1억 3천 중 주식이 있으면 그 몫만큼 ②에서 빼서 [√]주식·채권으로 옮기기</td><td class="n" data-l="금액">0원</td><td data-l="증빙">(주식이 있으면) 주식거래내역서 또는 잔고증명서</td></tr>
+<tr class="zero"><td class="no" data-l="번호">④</td><td data-l="서식 칸">증여·상속</td><td data-l="체크·내용">없음. 증여를 받기로 하면 [√]증여, 금액, 증여세 신고 여부, [√]직계존비속(관계: 부/모)</td><td class="n" data-l="금액">0원</td><td data-l="증빙">(증여 시) 증여세 신고서 또는 납세증명서</td></tr>
+<tr class="zero"><td class="no" data-l="번호">⑤</td><td data-l="서식 칸">현금 등 그 밖의 자금</td><td data-l="체크·내용">없음</td><td class="n" data-l="금액">0원</td><td data-l="증빙">(적으면) 원천징수영수증 등 소득 증빙</td></tr>
+<tr><td class="no" data-l="번호">⑥</td><td data-l="서식 칸">부동산 처분대금 등</td><td data-l="체크·내용">지금 집 전세보증금 회수분 중 내 돈 몫(보증금 2억 3천 − 전세대출 상환 1억 8천). [√]임대보증금(취득주택 외) 또는 [√]기타(종류: 전세보증금 회수) <span class="chk">확인 필요</span> 어느 칸에 체크할지 구청·중개사무소에 확인</td><td class="n" data-l="금액">50,000,000원<small>5,000만</small></td><td data-l="증빙">지금 집 임대차계약서 (전세대출 잔액 증명도 준비)</td></tr>
+<tr class="sub"><td class="no" data-l="번호">⑦</td><td data-l="서식 칸">자기자금 소계</td><td data-l="체크·내용">② ~ ⑥ 합계</td><td class="n" data-l="금액">150,000,000원<small>1억 5,000만</small></td><td data-l="증빙"></td></tr>
+</tbody></table>
+<p class="note">가진 돈 1억 8천(보증금 5천 + 예금 1억 3천)에서 부대비용 약 1,523만과 비상금 약 1,477만(비상금 500 + 대출 올림분 977)을 뺀 1억 5,000만을 넣는 구성입니다. 부대비용·비상금은 계획서에 적지 않습니다.</p>
+
+<h2>① 자금조달계획: 차입금 등</h2>
+<table class="stack"><thead><tr><th>번호</th><th>서식 칸</th><th>체크·적을 내용</th><th class="n">금액</th><th>첨부할 증빙</th></tr></thead><tbody>
+<tr><td class="no" data-l="번호">⑧</td><td data-l="서식 칸">금융기관 대출액 합계</td><td data-l="체크·내용">주택담보대출 (금융기관명: <span class="blank">은행 정해지면</span>). 신용·사업자·해외·그 밖의 대출 없음<br>기존 주택 보유 여부: [√]미보유 (생애최초)</td><td class="n" data-l="금액">30,000,000원<small>3,000만</small></td><td data-l="증빙">금융거래확인서, 부채증명서 또는 대출신청서. 제출일에 대출이 아직 실행 전이면 <b>사유서</b>도 첨부</td></tr>
+<tr class="zero"><td class="no" data-l="번호">⑨</td><td data-l="서식 칸">취득주택의 임대보증금</td><td data-l="체크·내용">없음 (본인 입주)</td><td class="n" data-l="금액">0원</td><td data-l="증빙"></td></tr>
+<tr class="zero"><td class="no" data-l="번호">⑩</td><td data-l="서식 칸">회사지원금·사채</td><td data-l="체크·내용">없음. 회사 이자지원은 원금을 빌리는 게 아니라서 여기 안 적는 것으로 봄 <span class="chk">확인 필요</span></td><td class="n" data-l="금액">0원</td><td data-l="증빙"></td></tr>
+<tr><td class="no" data-l="번호">⑪</td><td data-l="서식 칸">그 밖의 차입금</td><td data-l="체크·내용">[√]직계존비속(관계: 부, 모). 엄마 2억 + 아빠 2억, 각각 무이자 차용, 매년 원금 5% 상환(20년)</td><td class="n" data-l="금액">400,000,000원<small>4억</small></td><td data-l="증빙">차용증 2부(엄마, 아빠 각각, 확정일자), 상환 계획(매달 자동이체), 부모님 본인 계좌 송금내역(2월 송금 후)</td></tr>
+<tr class="sub"><td class="no" data-l="번호">⑫</td><td data-l="서식 칸">차입금 등 소계</td><td data-l="체크·내용">⑧ ~ ⑪ 합계</td><td class="n" data-l="금액">430,000,000원<small>4억 3,000만</small></td><td data-l="증빙"></td></tr>
+<tr class="tot"><td class="no" data-l="번호">⑬</td><td data-l="서식 칸">합계</td><td data-l="체크·내용">⑦ + ⑫ <span class="okb">매매가와 같음</span></td><td class="n" data-l="금액">580,000,000원<small>5억 8,000만</small></td><td data-l="증빙"></td></tr>
+</tbody></table>
+
+<h2>⑭ 조달자금 지급방식</h2>
+<table class="stack"><thead><tr><th>칸</th><th>적을 내용</th><th class="n">금액</th></tr></thead><tbody>
+<tr><td data-l="칸">총 거래금액</td><td data-l="내용">계약서 매매가</td><td class="n" data-l="금액">580,000,000원</td></tr>
+<tr><td data-l="칸">⑮ 계좌이체 금액</td><td data-l="내용">계약금·잔금 모두 계좌이체</td><td class="n" data-l="금액">580,000,000원</td></tr>
+<tr class="zero"><td data-l="칸">⑯ 보증금·대출 승계 금액</td><td data-l="내용">없음 (빈 집, 매도인 대출 승계 안 함)</td><td class="n" data-l="금액">0원</td></tr>
+<tr class="zero"><td data-l="칸">⑰ 현금 및 그 밖의 지급방식</td><td data-l="내용">없음</td><td class="n" data-l="금액">0원</td></tr>
+</tbody></table>
+
+<h2>⑱ 입주 계획</h2>
+<table class="stack"><thead><tr><th>칸</th><th>적을 내용</th></tr></thead><tbody>
+<tr><td data-l="칸">입주 형태</td><td data-l="내용">[√]본인입주</td></tr>
+<tr><td data-l="칸">입주 예정 시기</td><td data-l="내용">2027년 2월 (2/26 잔금·입주 계획). 토허구역 2년 실거주 의무와 맞음</td></tr>
+</tbody></table>
+
+<div class="box alert">
+<p><b>미리 챙길 것</b></p>
+<ul>
+<li><b>차용증은 계획서 내기 전에</b> 있어야 합니다. 일정표대로 12/14~12/28에 엄마, 아빠 각각 쓰고 확정일자를 받으면 됩니다.</li>
+<li>계약은 12월 말~1월, 대출 실행과 부모님 송금은 2월이라 제출일에는 대출이 실행 전입니다. 대출신청서와 함께 <b>사유서</b>를 붙입니다. 부모님 송금내역은 송금 후 소명 요청이 오면 냅니다. <span class="chk">확인 필요</span></li>
+<li>2026년 개정으로 실거래 신고 때 <b>계약금 입금 증빙</b>을 내야 한다는 안내가 있습니다. 계약금을 계좌이체로 보내고 내역을 남겨 두세요. <span class="chk">확인 필요</span></li>
+<li>은행 대출액이 바뀌면 ②(예금 몫)도 같이 바뀝니다. 계약 후 계산기에 최종 매매가와 대출액을 넣고 이 표를 다시 맞춥니다.</li>
+<li>세무사 상담(12/7~12/13) 때 이 페이지를 가져가 ⑥ 체크 칸, ⑩ 회사 이자지원, 증여를 섞을 경우 ④ 작성법을 확인합니다.</li>
+</ul>
+</div>
+
+<p class="note">출처: <a href="https://kbthink.com/content/dam/tam-dcp-cms/kbcontent/realestate/home-funding-plan/home-funding-plan-document.pdf">주택취득자금 조달 및 입주계획서 서식(2026.2.6. 개정본, KB 게시본)</a>, <a href="https://www.law.go.kr/LSW/flDownload.do?flSeq=163619017">부동산 거래신고법 시행령 별표 1(2025.12.9. 개정, 국가법령정보센터)</a>, <a href="https://land.seoul.go.kr/land/other/contractGuide.do">서울부동산정보광장 토지거래허가 신청 안내</a>. 서식은 바뀔 수 있으니 제출할 때 부동산거래관리시스템의 최신 서식을 쓰세요. <span class="chk">확인 필요</span> 표시는 아직 확인하지 않은 항목입니다. 계산은 참고용 대략치입니다.</p>
+</main>
+</body>
+</html>
