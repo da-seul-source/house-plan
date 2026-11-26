@@ -36,6 +36,7 @@ legend{font-weight:700;color:var(--ac);padding:0;margin-bottom:6px}
 .f{display:grid;grid-template-columns:minmax(0,1fr) 128px;gap:4px 10px;align-items:center;margin:8px 0}
 .f label{font-size:15px}.f small,.hint{grid-column:1/-1;color:var(--mute);font-size:13px;line-height:1.4}
 input[type=number],select{width:100%;font-size:16px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);text-align:right;min-height:40px}
+input:disabled{opacity:.6}
 select{text-align:left;font-family:inherit}
 input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
 .ck{display:flex;gap:8px;align-items:center;margin:6px 0;font-size:15px;min-height:32px}.ck input{width:20px;height:20px;accent-color:var(--ac)}
@@ -130,7 +131,8 @@ nav.top{display:flex;gap:4px;padding:10px max(4vw,16px);border-bottom:1px solid 
 </fieldset>
 <fieldset><legend>증여 vs 은행 비교</legend>
 <div class="f"><label for="giftDed">증여 공제 남은 금액</label><input type="number" id="giftDed" step="100"><small>엄마·아빠 합쳐 10년 5천만원</small></div>
-<div class="f"><label for="gift">비교해 볼 증여 금액</label><input type="number" id="gift" step="1000"><small>은행 대출 대신 받는 돈</small></div>
+<label class="ck"><input type="checkbox" id="giftAuto"> 지금 은행 대출만큼 증여받기</label>
+<div class="f"><label for="gift">비교해 볼 증여 금액</label><input type="number" id="gift" step="1000"><small>은행 대출 대신 받는 돈. 위 체크를 켜면 대출 금액을 따라갑니다</small></div>
 <p class="hint">비교만 합니다. 위 대출 계산과 자금조달계획서에는 넣지 않습니다.</p>
 </fieldset>
 <button type="button" id="reset">처음 값으로 되돌리기</button>
@@ -140,7 +142,7 @@ nav.top{display:flex;gap:4px;padding:10px max(4vw,16px);border-bottom:1px solid 
 </div>
 
 <script id="calc">
-const DEF={price:58000,first:true,over85:false,jeonse:5000,cash:13000,reserve:500,mom:20000,dad:20000,repay:5,unit:1000,rate:4.0,years:30,ltv:40,cap:60000,tenure:6000,tax:0,lawyer:100,bond:40,move:150,taxpro:30,notary:10,floor:500,appl:0,income:450,target:50,giftDed:1200,gift:10000};
+const DEF={price:58000,first:true,over85:false,jeonse:5000,cash:13000,reserve:500,mom:20000,dad:20000,repay:5,unit:1000,rate:4.0,years:30,ltv:40,cap:60000,tenure:6000,tax:0,lawyer:100,bond:40,move:150,taxpro:30,notary:10,floor:500,appl:0,income:450,target:50,giftDed:1200,giftAuto:true,gift:10000};
 function pmt(P,ratePct,years){const n=Math.round(years*12),r=ratePct/100/12;if(P<=0||n<=0)return 0;return r===0?P/n:P*r/(1-Math.pow(1+r,-n))}
 function pv(M,ratePct,years){const n=Math.round(years*12),r=ratePct/100/12;if(M<=0||n<=0)return 0;return r===0?M*n:M*(1-Math.pow(1+r,-n))/r}
 function cumInt(P,ratePct,years,months){const n=Math.round(years*12),r=ratePct/100/12,m=pmt(P,ratePct,years);let b=P,s=0;for(let i=0;i<Math.min(months,n);i++){const it=b*r;s+=it;b-=m-it}return s}
@@ -171,9 +173,14 @@ function calc(I){
  R.burden12=R.totM-R.sup;R.burden3=R.totM;R.rest12=I.income-R.burden12;R.rest3=I.income-R.burden3;
  R.budget=I.income*I.target/100;R.bankCan=R.budget-R.famM;R.afford=Math.min(Math.max(0,pv(R.bankCan,I.rate,I.years)),I.cap);
  R.view=R.left+fam+R.afford;R.viewRest=I.income-R.famM-pmt(R.afford,I.rate,I.years);
- const g=a=>({amt:a,tax:giftTax(a,I.giftDed),i5:cumInt(a,I.rate,I.years,60),i10:cumInt(a,I.rate,I.years,120),iAll:cumInt(a,I.rate,I.years,1e9),m:pmt(a,I.rate,I.years),be:breakEven(a,I.rate,I.years,giftTax(a,I.giftDed)),over:a>R.loan});
- R.g=g(I.gift);R.gRows=[5000,10000,15000,20000,25000].map(g);
- if(!R.gRows.some(x=>x.amt===I.gift)){R.gRows.push(R.g);R.gRows.sort((a,b)=>a.amt-b.amt)}
+ R.giftAmt=I.giftAuto?Math.max(0,R.loan):I.gift;
+ const L=R.loan,iA=cumInt(L,I.rate,I.years,1e9),mA=pmt(L,I.rate,I.years);R.bankOnly={loan:L,m:mA,iAll:iA};
+ const g=a=>{const tax=giftTax(a,I.giftDed),lb=Math.max(0,L-a+tax),sv=m=>cumInt(L,I.rate,I.years,m)-cumInt(lb,I.rate,I.years,m)-tax,n=Math.round(I.years*12);
+  let be='없음';if(tax<=0)be='처음부터';else for(let i=1;i<=n;i++){if(sv(i)>0){be=i<12?i+'개월':(i/12).toFixed(1)+'년';break}}
+  const iB=cumInt(lb,I.rate,I.years,1e9);return{amt:a,tax,loanB:lb,mB:pmt(lb,I.rate,I.years),mDown:mA-pmt(lb,I.rate,I.years),iB,costB:iB+tax,s5:sv(60),s10:sv(120),sAll:sv(1e9),be,over:a>L+0.5}};
+ R.g=g(R.giftAmt);
+ const am=[I.giftDed,L*.25,L*.5,L*.75,L].map(x=>Math.round(x)).filter(x=>x>0&&L>0.5);
+ R.gRows=[...new Set(am)].map(g);if(R.giftAmt>0&&!R.gRows.some(x=>x.amt===Math.round(R.giftAmt)))R.gRows.push(R.g);R.gRows.sort((a,b)=>a.amt-b.amt);
  R.plan=[['자기자금·금융기관 예금 등','예금·주식 등',R.putC,'잔고증명서, 주식 거래내역서'],['자기자금·부동산 처분대금 등','지금 집 전세보증금',R.putJ,'지금 집 임대차계약서'],['차입금·금융기관 대출','주택담보대출',R.loan,'대출 신청서 또는 승인서'],['차입금·그 밖의 차입금','엄마 무이자 차용',I.mom,'차용증, 엄마 계좌 송금내역'],['차입금·그 밖의 차입금','아빠 무이자 차용',I.dad,'차용증, 아빠 계좌 송금내역']];
  R.planTot=R.plan.reduce((s,x)=>s+x[2],0);R.planDiff=R.planTot-I.price;
  const W=[],won=v=>fmtE(v);
@@ -209,7 +216,7 @@ const row=(cells,cls='')=>`<tr class="${cls}">${cells.map(c=>Array.isArray(c)?`<
 function render(){
  const I=read();save(I);const R=calc(I);
  $('repayDesc').textContent=I.repay>0?`매년 원금의 ${fmtY(I.repay)}% → ${fmtY(100/I.repay)}년에 다 갚음`:'상환하지 않음';
- $('loanAuto').textContent=fmtE(R.loan);
+ $('loanAuto').textContent=fmtE(R.loan);$('gift').disabled=I.giftAuto;if(I.giftAuto)$('gift').value=Math.round(R.loan);
  const inc=Math.max(I.income,1e-9),w=v=>Math.max(0,Math.min(100,v/inc*100)).toFixed(2)+'%',rest=I.income-R.totM;
  const costRows=[
   ['취득세',`매매가 × ${R.acqRate.toFixed(2)}%`,R.acq,'잔금일'],
@@ -304,14 +311,15 @@ ${row(['3년차부터',[fmtM(R.totM)],['0.0'],[fmtM(R.burden3)],[(R.burden3/inc*
 
 <section><h2>증여 vs 은행 대출</h2>
 <div class="cards">
- <div class="card"><div class="l">증여세 (${fmtE(I.gift)} 증여)</div><div class="big">${fmt(R.g.tax)}만</div><div class="s">공제 ${fmt(I.giftDed)} 빼고, 신고세액공제 3% 반영</div></div>
- <div class="card"><div class="l">같은 돈을 은행에서 빌리면 총이자</div><div class="big">${fmt(R.g.iAll)}만</div><div class="s">${y}년 동안 · 매달 원리금 ${fmtM(R.g.m)}만</div></div>
+ <div class="card"><div class="l">은행만</div><div class="big">${fmt(R.bankOnly.iAll)}만</div><div class="s">총이자 · 대출 ${fmtE(R.bankOnly.loan)} · 매달 ${fmtM(R.bankOnly.m)}만</div></div>
+ <div class="card"><div class="l">${fmtE(R.giftAmt)} 증여 섞기</div><div class="big">${fmt(R.g.costB)}만</div><div class="s">증여세 ${fmt(R.g.tax)} + 총이자 ${fmt(R.g.iB)} · 남는 대출 ${fmtE(R.g.loanB)} · 매달 ${fmtM(R.g.mB)}만</div></div>
+ <div class="card"><div class="l">아끼는 돈 (${y}년 다 갚을 때)</div><div class="big">${fmt(R.g.sAll)}만</div><div class="s">5년 ${fmt(R.g.s5)} · 10년 ${fmt(R.g.s10)}</div></div>
  <div class="card hi"><div class="l">본전 시점</div><div class="big">${R.g.be}</div><div class="s">이보다 오래 대출을 갖고 있으면 증여가 쌉니다</div></div>
 </div>
-<div class="scroll" style="margin-top:12px"><table><thead><tr><th class="n">증여 금액</th><th class="n">증여세</th><th class="n">은행 이자 5년</th><th class="n">10년</th><th class="n">전체 기간</th><th class="n">매달 줄어드는 원리금</th><th class="n">본전 시점</th></tr></thead><tbody>
-${R.gRows.map(x=>row([[fmtE(x.amt)+(x.over?' '+B('y','대출보다 많음'):'')],[fmt(x.tax)],[fmt(x.i5)],[fmt(x.i10)],[fmt(x.iAll)],[fmtM(x.m)],[x.be]],x.amt===I.gift?'em':'')).join('')}
-</tbody></table></div>
-<p class="note">대출을 본전 시점보다 일찍 다 갚을 거면 은행이, 아니면 증여가 쌉니다. 증여는 부모님 돈이 돌아오지 않습니다. 10년 안의 이전 증여 합산, 혼인 공제 등은 세무사에게 확인하세요.</p>
+${R.gRows.length?`<div class="scroll" style="margin-top:12px"><table><thead><tr><th class="n">증여 금액</th><th class="n">증여세</th><th class="n">증여 후 대출</th><th class="n">매달 줄어드는 원리금</th><th class="n">아끼는 돈 5년</th><th class="n">10년</th><th class="n">전체 기간</th><th class="n">본전 시점</th></tr></thead><tbody>
+${R.gRows.map(x=>row([[fmtE(x.amt)+(x.over?' '+B('y','대출보다 많음'):'')],[fmt(x.tax)],[fmt(x.loanB)],[fmtM(x.mDown)],[fmt(x.s5)],[fmt(x.s10)],[fmt(x.sAll)],[x.be]],x.amt===Math.round(R.giftAmt)?'em':'')).join('')}
+</tbody></table></div>`:'<p class="note">은행 대출이 없어서 비교할 금액이 없습니다.</p>'}
+<p class="note">증여세는 현금으로 내야 해서 그만큼 대출을 더 받는 것으로 계산했습니다 (증여 후 대출 = 대출 − 증여 + 증여세). 아끼는 돈 = 은행만일 때 이자 − 증여 섞을 때 이자 − 증여세. 표의 행은 공제 남은 금액, 대출의 25·50·75·100%입니다. 대출을 본전 시점보다 일찍 다 갚을 거면 은행이, 아니면 증여가 쌉니다. 증여는 부모님 돈이 돌아오지 않습니다. 10년 안의 이전 증여 합산, 혼인 공제 등은 세무사에게 확인하세요.</p>
 </section>
 
 <section><h2>예산으로 볼 수 있는 집값</h2>
