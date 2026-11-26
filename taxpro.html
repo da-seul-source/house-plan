@@ -65,9 +65,9 @@ button.solid{background:var(--ac);color:light-dark(#fff,#04201d)}
 <nav class="top"><a href="./">자금계산기</a><a href="schedule.html">일정표</a><a href="fund.html">자금조달계획서</a><a href="taxpro.html" aria-current="page">세무사 상담</a></nav>
 <header>
 <h1>세무사 상담 체크리스트</h1>
-<p>세무사마다 탭을 따로 두고 답을 적은 뒤, 비교 탭에서 나란히 봅니다. 질문은 그대로 읽으면 되게 썼고 <b>★</b>는 꼭 물어볼 질문입니다. 입력하면 바로 자동 저장되고, 구글 로그인하면 Firebase에도 저장돼서 다른 기기에서도 이어서 볼 수 있습니다.</p>
+<p>세무사마다 탭을 따로 두고 답을 적은 뒤, 비교 탭에서 나란히 봅니다. 질문은 그대로 읽으면 되게 썼고 <b>★</b>는 꼭 물어볼 질문입니다. 입력하면 바로 자동 저장되고, 클라우드 링크로 열면 로그인 없이 Firebase에도 저장돼서 다른 기기에서도 이어서 볼 수 있습니다.</p>
 </header>
-<div class="sync"><span id="sync">불러오는 중…</span><button type="button" class="b" id="login" hidden>구글 로그인</button><button type="button" class="lo" id="logout" hidden>로그아웃</button></div>
+<div class="sync"><span id="sync">불러오는 중…</span></div>
 <main>
 <details><summary>상담 시작할 때 이렇게 설명하기 · 가져갈 것</summary>
 <div class="box script"><p>"안양 동안구에 <b>5억 8천~7억 6천 원 아파트</b>를 사려고 해요. <b>생애최초</b>이고, 동안구는 토지거래허가구역이에요.</p><p>제 돈은 지금 전세보증금 중 제 몫 5천, 예금·주식 1억 3천이고, 월 실수령은 450만 원이에요.</p><p>엄마가 집을 팔고 양도세 신고까지 끝내서 현금을 갖고 계세요. <b>엄마, 아빠께 각각 2억씩 무이자로 빌리고, 매년 원금 5%씩 20년 동안 매달 자동이체로 갚을</b> 계획이에요. 나머지는 은행 주담대로 하려고 하고, 증여공제는 1,200만 원 남았어요."</p></div>
@@ -143,32 +143,32 @@ $('clear').addEventListener('click',()=>{$('clearYes').hidden=false;$('msg').tex
 $('clearYes').addEventListener('click',()=>{S={};for(const e of els)set(e,'');save(1);$('clearYes').hidden=true;$('msg').textContent='지웠습니다.';upd()});
 }
 </script><script type="module">
-const V='https://www.gstatic.com/firebasejs/11.10.0/';
-const st=document.getElementById('sync'),btn=document.getElementById('login'),out=document.getElementById('logout');
+const V='https://www.gstatic.com/firebasejs/11.10.0/',KK='anyang-taxpro-pad';
+const st=document.getElementById('sync');
 const say=(t,c)=>{st.textContent=t;st.dataset.s=c||''};
 const hm=()=>new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
-try{
- const [{initializeApp},A,F]=await Promise.all([import(V+'firebase-app.js'),import(V+'firebase-auth.js'),import(V+'firebase-firestore.js')]);
+let key=(location.hash.match(/k=([0-9a-f]{32,})/)||[])[1];
+try{if(key)localStorage.setItem(KK,key);else key=localStorage.getItem(KK)}catch(x){}
+if(!key)say('이 기기에만 저장 중. 받은 클라우드 링크(#k=…)로 열면 Firebase에도 저장됩니다');
+else try{
+ if(!location.hash.includes(key))history.replaceState(null,'','#k='+key);
+ const [{initializeApp},F]=await Promise.all([import(V+'firebase-app.js'),import(V+'firebase-firestore.js')]);
  const app=initializeApp({apiKey:"AIzaSyBrs4EjzSSICFxlWgazb_zyahEjiaVsRGg",authDomain:"house-plan-f67a7.firebaseapp.com",projectId:"house-plan-f67a7",storageBucket:"house-plan-f67a7.firebasestorage.app",messagingSenderId:"897737312298",appId:"1:897737312298:web:9d024c9495f10699465b53"});
- const auth=A.getAuth(app),db=F.getFirestore(app);let ref=null,timer=null,busy=0,un=null;
- const err=e=>{const c=e&&e.code||'';say(c.includes('unauthorized-domain')?'로그인 막힘: Firebase 승인된 도메인에 da-seul-source.github.io를 추가해 주세요':c.includes('permission-denied')?'클라우드 저장 거부됨: Firestore 규칙을 확인해 주세요 (이 폰에는 저장됨)':c.includes('not-found')||c.includes('failed-precondition')?'Firestore 데이터베이스가 아직 없습니다 (이 폰에는 저장됨)':'클라우드 저장 실패, 이 폰에는 저장됨 ('+(c||e)+')','bad')};
- async function push(){if(!ref)return;clearTimeout(timer);busy++;say('저장 중…','busy');
+ const db=F.getFirestore(app),ref=F.doc(db,'pads',key);let timer=null,busy=0;
+ const off='인터넷 끊김, 이 기기에만 저장됨. 연결되면 올라갑니다';
+ const err=e=>{const c=e&&e.code||'';say(c.includes('permission-denied')?'클라우드 저장 거부됨: Firestore 규칙을 확인해 주세요 (이 기기에는 저장됨)':'클라우드 저장 실패, 이 기기에는 저장됨 ('+(c||e)+')','bad')};
+ async function push(){clearTimeout(timer);busy++;say('저장 중…','busy');
   const S=window.TP.get(),t=S._t||Date.now();
   try{await F.setDoc(ref,{s:JSON.stringify(S),t});if(!--busy)say('저장됨 '+hm()+' · 클라우드','ok')}catch(e){busy--;err(e)}}
- window.TPpush=()=>{if(!ref)return;say(navigator.onLine?'저장 중…':'인터넷 끊김, 이 폰에만 저장됨. 연결되면 올라갑니다','busy');clearTimeout(timer);timer=setTimeout(push,700)};
- addEventListener('online',()=>{if(ref)push()});
- addEventListener('offline',()=>{if(ref)say('인터넷 끊김, 이 폰에만 저장됨. 연결되면 올라갑니다','busy')});
- btn.onclick=async()=>{const p=new A.GoogleAuthProvider();try{await A.signInWithPopup(auth,p)}catch(e){if(/popup-blocked|operation-not-supported/.test(e.code||''))A.signInWithRedirect(auth,p);else if(!/popup-closed|cancelled/.test(e.code||''))err(e)}};
- out.onclick=()=>A.signOut(auth);
- A.onAuthStateChanged(auth,async u=>{if(un){un();un=null}
-  if(!u){ref=null;btn.hidden=false;out.hidden=true;say('이 폰에만 저장 중. 구글 로그인하면 클라우드에도 저장됩니다');return}
-  btn.hidden=true;out.hidden=false;ref=F.doc(db,'users',u.uid,'apps','taxpro');say('클라우드 불러오는 중…','busy');
-  try{const d=await F.getDoc(ref),L=window.TP.get();
-   if(d.exists()&&(d.data().t||0)>(L._t||0)){window.TP.apply(JSON.parse(d.data().s));say('클라우드에서 불러옴 '+hm(),'ok')}
-   else if(L._t)await push();else say('저장됨 · 클라우드 연결됨 ('+(u.email||'')+')','ok');
-   un=F.onSnapshot(ref,x=>{if(x.metadata.hasPendingWrites||!x.exists())return;const r=x.data();if((r.t||0)>(window.TP.get()._t||0)){window.TP.apply(JSON.parse(r.s));say('다른 기기 내용 반영 '+hm(),'ok')}},()=>{});
-  }catch(e){err(e)}});
-}catch(e){say('클라우드 연결 실패 (인터넷 확인). 이 폰에는 저장됩니다','bad');btn.hidden=true}
+ window.TPpush=()=>{say(navigator.onLine?'저장 중…':off,'busy');clearTimeout(timer);timer=setTimeout(push,700)};
+ addEventListener('online',()=>push());addEventListener('offline',()=>say(off,'busy'));
+ say('클라우드 불러오는 중…','busy');
+ const d=await F.getDoc(ref),L=window.TP.get();
+ if(d.exists()&&(d.data().t||0)>(L._t||0)){window.TP.apply(JSON.parse(d.data().s));say('클라우드에서 불러옴 '+hm(),'ok')}
+ else if(L._t)await push();else say('클라우드 연결됨 · 쓰면 바로 저장됩니다','ok');
+ F.onSnapshot(ref,x=>{if(x.metadata.hasPendingWrites||!x.exists())return;const r=x.data();if((r.t||0)>(window.TP.get()._t||0)){window.TP.apply(JSON.parse(r.s));say('다른 기기 내용 반영 '+hm(),'ok')}},()=>{});
+}catch(e){err0(e)}
+function err0(e){const c=e&&e.code||'';say(c.includes('permission-denied')?'클라우드 저장 거부됨: Firestore 규칙을 확인해 주세요 (이 기기에는 저장됨)':'클라우드 연결 실패 (인터넷 확인). 이 기기에는 저장됩니다','bad')}
 </script>
 </body>
 </html>
