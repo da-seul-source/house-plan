@@ -3,6 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0c1615" media="(prefers-color-scheme: dark)">
 <title>안양 집 일정표</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -16,12 +18,12 @@
 --c1:light-dark(#0f766e,#3cc2b3);--c2:light-dark(#7fb8b1,#2c7a71);--c3:light-dark(#e3ecea,#1c2f2c)}
 :root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
 *{box-sizing:border-box;min-width:0}
-body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "IBM Plex Sans KR",system-ui,sans-serif;overflow-x:clip}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 "IBM Plex Sans KR",system-ui,sans-serif;overflow-x:clip}
 .num,td.n,input[type=number],.big{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
 header{padding:28px max(4vw,16px) 18px;border-bottom:1px solid var(--line)}
-h1{margin:0;font-size:clamp(28px,4vw,40px);line-height:1.1;text-wrap:balance}
+h1{margin:0;font-size:clamp(24px,3.4vw,34px);line-height:1.1;text-wrap:balance}
 header p{margin:8px 0 0;color:var(--mute);max-width:70ch}
-nav.top{display:flex;gap:4px;padding:10px max(4vw,16px);border-bottom:1px solid var(--line);flex-wrap:wrap}nav.top a{padding:10px 14px;border-radius:8px;color:var(--ink);text-decoration:none;font-weight:600;min-height:44px}nav.top a[aria-current=page]{background:var(--ac);color:light-dark(#fff,#04201d)}nav.top a:not([aria-current]):hover{background:var(--acs)}
+nav.top{position:sticky;top:0;z-index:10;background:var(--bg);display:flex;gap:4px;padding:8px max(4vw,16px);border-bottom:1px solid var(--line);flex-wrap:wrap}nav.top a{padding:10px 12px;font-size:15px;border-radius:8px;color:var(--ink);text-decoration:none;font-weight:600;min-height:44px}nav.top a[aria-current=page]{background:var(--ac);color:light-dark(#fff,#04201d)}nav.top a:not([aria-current]):hover{background:var(--acs)}
 @media(max-width:600px){table{font-size:13px}.stack thead{display:none}.stack tr{display:grid;padding-block:10px;border-bottom:1px solid var(--line)}.stack td{display:flow-root;border:0;padding:3px 0;padding-inline-start:8em;text-align:start}.stack td.n{text-align:right}.stack td::before{content:attr(data-l);float:inline-start;width:7.5em;margin-inline-start:-8em;white-space:normal;color:var(--mute);text-align:left}.stack td:empty{display:none}}
 main{max-width:960px;padding:8px max(4vw,16px) 48px}
 .per{display:grid;grid-template-columns:170px minmax(0,1fr);gap:16px;padding:18px 0;border-bottom:1px solid var(--line)}

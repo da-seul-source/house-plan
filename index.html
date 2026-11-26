@@ -3,6 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0c1615" media="(prefers-color-scheme: dark)">
 <title>안양 집 자금계산기</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -21,20 +23,20 @@
 --c1:light-dark(#0f766e,#3cc2b3);--c2:light-dark(#7fb8b1,#2c7a71);--c3:light-dark(#e3ecea,#1c2f2c)}
 :root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
 *{box-sizing:border-box;min-width:0}
-body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "IBM Plex Sans KR",system-ui,sans-serif;overflow-x:clip}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 "IBM Plex Sans KR",system-ui,sans-serif;overflow-x:clip}
 .num,td.n,input[type=number],.big{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
 header{padding:28px max(4vw,16px) 18px;border-bottom:1px solid var(--line)}
-h1{margin:0;font-size:clamp(28px,4vw,40px);line-height:1.1;text-wrap:balance}
+h1{margin:0;font-size:clamp(24px,3.4vw,34px);line-height:1.1;text-wrap:balance}
 header p{margin:8px 0 0;color:var(--mute);max-width:70ch}
 .wrap{display:grid;grid-template-columns:380px minmax(0,1fr);gap:28px;padding:24px max(4vw,16px) 48px;max-width:1440px}
 @media(max-width:900px){.wrap{grid-template-columns:minmax(0,1fr)}}
 aside{background:var(--panel);border-radius:12px;padding:18px;align-self:start}
-@media(min-width:901px){aside{position:sticky;top:12px;max-height:calc(100vh - 24px);overflow:auto}}
+@media(min-width:901px){aside{position:sticky;top:76px;max-height:calc(100vh - 88px);overflow:auto}}
 fieldset{border:0;border-top:1px solid var(--line);margin:0;padding:14px 0 10px}
 fieldset:first-of-type{border-top:0;padding-top:0}
 legend{font-weight:700;color:var(--ac);padding:0;margin-bottom:6px}
 .f{display:grid;grid-template-columns:minmax(0,1fr) 128px;gap:4px 10px;align-items:center;margin:8px 0}
-.f label{font-size:15px}.f small,.hint{grid-column:1/-1;color:var(--mute);font-size:13px;line-height:1.4}
+.f label{font-size:14px}.f small,.hint{grid-column:1/-1;color:var(--mute);font-size:13px;line-height:1.4}
 input[type=number],select{width:100%;font-size:16px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);text-align:right;min-height:40px}
 input:disabled{opacity:.6}
 select{text-align:left;font-family:inherit}
@@ -46,10 +48,10 @@ input[type=range]{width:100%;accent-color:var(--ac);height:28px}
 .auto b{font-family:"IBM Plex Mono",monospace}
 button{font:inherit;font-size:15px;padding:10px 14px;border-radius:8px;border:1px solid var(--ac);background:transparent;color:var(--ac);cursor:pointer;min-height:44px;width:100%;margin-top:10px}
 main{display:grid;gap:30px;align-content:start}
-section h2{font-size:21px;margin:0 0 10px;line-height:1.25}
+section h2{font-size:19px;margin:0 0 10px;line-height:1.25}
 .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
 .card{border:1px solid var(--line);border-radius:10px;padding:12px 14px}
-.card .l{font-size:14px;color:var(--mute)}.card .big{font-size:clamp(22px,2.6vw,30px);font-weight:600;line-height:1.2;margin:4px 0;white-space:nowrap}
+.card .l{font-size:14px;color:var(--mute)}.card .big{font-size:clamp(20px,2.3vw,26px);font-weight:600;line-height:1.2;margin:4px 0;white-space:nowrap}
 .card .s{font-size:13px;color:var(--mute)}
 .card.hi{background:var(--ac);border-color:var(--ac);color:#fff}.card.hi .l,.card.hi .s{color:#e6f7f5}
 :root[data-theme=dark] .card.hi,.card.hi{color:light-dark(#fff,#04201d)}
@@ -57,21 +59,23 @@ section h2{font-size:21px;margin:0 0 10px;line-height:1.25}
 .bar div{height:100%}.leg{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--mute)}
 .leg i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
 .warns{list-style:none;padding:0;margin:12px 0 0;display:grid;gap:6px}
-.warns li{padding:8px 12px;border-radius:8px;font-size:15px;border-left:4px solid}
+.warns li{padding:8px 12px;border-radius:8px;font-size:14px;border-left:4px solid}
 .g{background:var(--okb);border-color:var(--ok)!important;color:var(--ok)}.y{background:var(--warnb);border-color:var(--warn)!important;color:var(--warn)}.r{background:var(--badb);border-color:var(--bad)!important;color:var(--bad)}
 .badge{display:inline-block;font-size:13px;font-weight:600;padding:2px 8px;border-radius:99px;white-space:nowrap;font-family:"IBM Plex Sans KR",sans-serif}
-table{width:100%;border-collapse:collapse;font-size:15px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+.gt th{white-space:normal}
 th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
 th{font-size:13px;color:var(--mute);font-weight:600}
 td.n,th.n{text-align:right;white-space:nowrap}
 tr.tot td{font-weight:700;border-top:2px solid var(--ink);border-bottom:0}
 tr.em td{background:var(--acs)}
 .note{color:var(--mute);font-size:14px;margin:8px 0 0}
-.sent{font-size:18px;line-height:1.6;max-width:70ch}.sent b{font-family:"IBM Plex Mono",monospace;color:var(--ac)}
+.sent{font-size:16px;line-height:1.6;max-width:70ch}.sent b{font-family:"IBM Plex Mono",monospace;color:var(--ac)}
 footer{color:var(--mute);font-size:14px;border-top:1px solid var(--line);padding-top:14px}
 pre,.scroll{overflow-x:auto}
-nav.top{display:flex;gap:4px;padding:10px max(4vw,16px);border-bottom:1px solid var(--line);flex-wrap:wrap}nav.top a{padding:10px 14px;border-radius:8px;color:var(--ink);text-decoration:none;font-weight:600;min-height:44px}nav.top a[aria-current=page]{background:var(--ac);color:light-dark(#fff,#04201d)}nav.top a:not([aria-current]):hover{background:var(--acs)}
-@media(max-width:600px){table{font-size:13px}.stack thead{display:none}.stack tr{display:grid;padding-block:10px;border-bottom:1px solid var(--line)}.stack td{display:flow-root;border:0;padding:3px 0;padding-inline-start:8em;text-align:start}.stack td.n{text-align:right}.stack td::before{content:attr(data-l);float:inline-start;width:7.5em;margin-inline-start:-8em;white-space:normal;color:var(--mute);text-align:left}.stack td:empty{display:none}}
+nav.top{position:sticky;top:0;z-index:10;background:var(--bg);display:flex;gap:4px;padding:8px max(4vw,16px);border-bottom:1px solid var(--line);flex-wrap:wrap}nav.top a{padding:10px 12px;font-size:15px;border-radius:8px;color:var(--ink);text-decoration:none;font-weight:600;min-height:44px}nav.top a[aria-current=page]{background:var(--ac);color:light-dark(#fff,#04201d)}nav.top a:not([aria-current]):hover{background:var(--acs)}
+@media(max-width:600px){table{font-size:13px}}
+@media(max-width:900px){.stack thead{display:none}.stack tr{display:grid;padding-block:10px;border-bottom:1px solid var(--line)}.stack td{display:flow-root;border:0;padding:3px 0;padding-inline-start:8em;text-align:start}.stack td.n{text-align:right}.stack td::before{content:attr(data-l);float:inline-start;width:7.5em;margin-inline-start:-8em;white-space:normal;color:var(--mute);text-align:left}.stack td:empty{display:none}}
 </style>
 <script>new MutationObserver(()=>{for(const c of document.querySelectorAll('.stack td:not([data-l])')){let i=0,p=c;while(p=p.previousElementSibling)i+=p.colSpan;c.dataset.l=c.closest('table').rows[0].cells[i]?.textContent||''}}).observe(document,{childList:true,subtree:true})</script>
 </head>
@@ -302,7 +306,7 @@ ${row(['합계',[fmt(R.loan+R.fam)],'',[fmtM(R.totM)]],'tot')}
  <div class="card"><div class="l">2년 동안 총액</div><div class="big">${fmt(R.supTot)}만</div><div class="s">24회</div></div>
  <div class="card"><div class="l">1~2년차 매달 부담</div><div class="big">${fmtM(R.burden12)}만</div><div class="s">실수령 대비 ${(R.burden12/inc*100).toFixed(1)}% · 3년차부터 ${fmtM(R.burden3)}만</div></div>
 </div>
-<div class="scroll" style="margin-top:12px"><table><thead><tr><th>기간</th><th class="n">은행+가족</th><th class="n">회사 지원</th><th class="n">실제 부담</th><th class="n">실수령 대비</th><th class="n">남는 월급</th></tr></thead><tbody>
+<div style="margin-top:12px"><table class="stack"><thead><tr><th>기간</th><th class="n">은행+가족</th><th class="n">회사 지원</th><th class="n">실제 부담</th><th class="n">실수령 대비</th><th class="n">남는 월급</th></tr></thead><tbody>
 ${row(['1~2년차',[fmtM(R.totM)],['−'+fmtM(R.sup)],[fmtM(R.burden12)],[(R.burden12/inc*100).toFixed(1)+'%'],[fmtM(R.rest12)]])}
 ${row(['3년차부터',[fmtM(R.totM)],['0.0'],[fmtM(R.burden3)],[(R.burden3/inc*100).toFixed(1)+'%'],[fmtM(R.rest3)]])}
 </tbody></table></div>
@@ -317,8 +321,8 @@ ${row(['3년차부터',[fmtM(R.totM)],['0.0'],[fmtM(R.burden3)],[(R.burden3/inc*
  <div class="card"><div class="l">아끼는 돈 (${y}년 다 갚을 때)</div><div class="big">${fmt(R.g.sAll)}만</div><div class="s">5년 ${fmt(R.g.s5)} · 10년 ${fmt(R.g.s10)}</div></div>
  <div class="card hi"><div class="l">본전 시점</div><div class="big">${R.g.be}</div><div class="s">이보다 오래 대출을 갖고 있으면 증여가 쌉니다</div></div>
 </div>
-${R.gRows.length?`<div class="scroll" style="margin-top:12px"><table><thead><tr><th class="n">증여 금액</th><th class="n">증여세</th><th class="n">증여 후 대출</th><th class="n">매달 줄어드는 원리금</th><th class="n">아끼는 돈 5년</th><th class="n">10년</th><th class="n">전체 기간</th><th class="n">본전 시점</th><th class="n">더 이득</th></tr></thead><tbody>
-${R.gRows.map(x=>row([[fmtE(x.amt)+(x.over?' '+B('y','대출보다 많음'):'')],[fmt(x.tax)],[fmt(x.loanB)],[fmtM(x.mDown)],[fmt(x.s5)],[fmt(x.s10)],[fmt(x.sAll)],[x.be],[x.sAll>0.5?B('g','증여 '+fmt(x.sAll)+'만'):B('y','은행 '+fmt(-x.sAll)+'만')]],x.amt===Math.round(R.giftAmt)?'em':'')).join('')}
+${R.gRows.length?`<div style="margin-top:12px"><table class="stack gt"><thead><tr><th class="n">증여 금액</th><th class="n">증여세</th><th class="n">증여 후 대출</th><th class="n">매달 줄어드는 원리금</th><th class="n">아끼는 돈 5년</th><th class="n">10년</th><th class="n">전체 기간</th><th class="n">본전 시점</th><th class="n">더 이득</th></tr></thead><tbody>
+${R.gRows.map(x=>row([[fmtE(x.amt)+(x.over?'<br>'+B('y','대출보다 많음'):'')],[fmt(x.tax)],[fmt(x.loanB)],[fmtM(x.mDown)],[fmt(x.s5)],[fmt(x.s10)],[fmt(x.sAll)],[x.be],[x.sAll>0.5?B('g','증여 '+fmt(x.sAll)+'만'):B('y','은행 '+fmt(-x.sAll)+'만')]],x.amt===Math.round(R.giftAmt)?'em':'')).join('')}
 </tbody></table></div>`:'<p class="note">은행 대출이 없어서 비교할 금액이 없습니다.</p>'}
 <p class="note">증여세는 현금으로 내야 해서 그만큼 대출을 더 받는 것으로 계산했습니다 (증여 후 대출 = 대출 − 증여 + 증여세). 아끼는 돈 = 은행만일 때 이자 − 증여 섞을 때 이자 − 증여세. 표의 행은 공제 남은 금액, 5,000만, 대출의 25·50·75·100%입니다. 대출을 본전 시점보다 일찍 다 갚을 거면 은행이, 아니면 증여가 쌉니다. 증여는 부모님 돈이 돌아오지 않습니다. 10년 안의 이전 증여 합산, 혼인 공제 등은 세무사에게 확인하세요.</p>
 </section>
