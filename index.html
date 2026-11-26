@@ -69,11 +69,13 @@ tr.em td{background:var(--acs)}
 .sent{font-size:18px;line-height:1.6;max-width:70ch}.sent b{font-family:"IBM Plex Mono",monospace;color:var(--ac)}
 footer{color:var(--mute);font-size:14px;border-top:1px solid var(--line);padding-top:14px}
 pre,.scroll{overflow-x:auto}
+nav.top{display:flex;gap:4px;padding:10px max(4vw,16px);border-bottom:1px solid var(--line);flex-wrap:wrap}nav.top a{padding:10px 14px;border-radius:8px;color:var(--ink);text-decoration:none;font-weight:600;min-height:44px}nav.top a[aria-current=page]{background:var(--ac);color:light-dark(#fff,#04201d)}nav.top a:not([aria-current]):hover{background:var(--acs)}
 @media(max-width:600px){table{font-size:13px}.stack thead{display:none}.stack tr{display:grid;padding-block:10px;border-bottom:1px solid var(--line)}.stack td{display:flow-root;border:0;padding:3px 0;padding-inline-start:8em;text-align:start}.stack td.n{text-align:right}.stack td::before{content:attr(data-l);float:inline-start;width:7.5em;margin-inline-start:-8em;white-space:normal;color:var(--mute);text-align:left}.stack td:empty{display:none}}
 </style>
 <script>new MutationObserver(()=>{for(const c of document.querySelectorAll('.stack td:not([data-l])')){let i=0,p=c;while(p=p.previousElementSibling)i+=p.colSpan;c.dataset.l=c.closest('table').rows[0].cells[i]?.textContent||''}}).observe(document,{childList:true,subtree:true})</script>
 </head>
 <body>
+<nav class="top"><a href="./" aria-current="page">자금계산기</a><a href="schedule.html">일정표</a></nav>
 <header>
 <h1>안양 집 자금계산기</h1>
 <p>숫자를 바꾸면 대출액, 매달 부담, 자금조달계획서 금액이 바로 다시 계산됩니다. 단위는 만원입니다.</p>

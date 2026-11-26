@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>안양 집 일정표</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans+KR:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:light dark;
+--bg:light-dark(#ffffff,#0c1615);--panel:light-dark(#f2f7f6,#122220);--ink:light-dark(#14201f,#e3eeec);--mute:light-dark(#5b6b69,#93a6a3);
+--line:light-dark(#d8e3e1,#24403c);--ac:light-dark(#0f766e,#3cc2b3);--acs:light-dark(#d7efec,#173a36);
+--ok:light-dark(#1d7a3e,#56c983);--okb:light-dark(#e3f4e8,#14301f);--warn:light-dark(#8a6200,#e6b84a);--warnb:light-dark(#fdf3d6,#33290f);
+--bad:light-dark(#b42318,#f07a6e);--badb:light-dark(#fde6e3,#3a1714);
+--c1:light-dark(#0f766e,#3cc2b3);--c2:light-dark(#7fb8b1,#2c7a71);--c3:light-dark(#e3ecea,#1c2f2c)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "IBM Plex Sans KR",system-ui,sans-serif;overflow-x:clip}
+.num,td.n,input[type=number],.big{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+header{padding:28px max(4vw,16px) 18px;border-bottom:1px solid var(--line)}
+h1{margin:0;font-size:clamp(28px,4vw,40px);line-height:1.1;text-wrap:balance}
+header p{margin:8px 0 0;color:var(--mute);max-width:70ch}
+nav.top{display:flex;gap:4px;padding:10px max(4vw,16px);border-bottom:1px solid var(--line);flex-wrap:wrap}nav.top a{padding:10px 14px;border-radius:8px;color:var(--ink);text-decoration:none;font-weight:600;min-height:44px}nav.top a[aria-current=page]{background:var(--ac);color:light-dark(#fff,#04201d)}nav.top a:not([aria-current]):hover{background:var(--acs)}
+@media(max-width:600px){table{font-size:13px}.stack thead{display:none}.stack tr{display:grid;padding-block:10px;border-bottom:1px solid var(--line)}.stack td{display:flow-root;border:0;padding:3px 0;padding-inline-start:8em;text-align:start}.stack td.n{text-align:right}.stack td::before{content:attr(data-l);float:inline-start;width:7.5em;margin-inline-start:-8em;white-space:normal;color:var(--mute);text-align:left}.stack td:empty{display:none}}
+main{max-width:960px;padding:8px max(4vw,16px) 48px}
+.per{display:grid;grid-template-columns:170px minmax(0,1fr);gap:16px;padding:18px 0;border-bottom:1px solid var(--line)}
+.when b{display:block;font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:20px;color:var(--ac);white-space:nowrap}.when span{color:var(--mute);font-size:15px}
+ol{margin:0;padding-left:1.4em;display:grid;gap:6px}li b{font-weight:700}
+.chk{display:inline-block;font-size:13px;font-weight:600;padding:1px 8px;border-radius:99px;background:var(--warnb);color:var(--warn);white-space:nowrap}
+.var{margin-top:22px;border-left:4px solid var(--warn);background:var(--warnb);border-radius:8px;padding:14px 18px}.var h2{margin:0 0 6px;font-size:18px}
+.note{color:var(--mute);font-size:14px;margin-top:18px}
+@media(max-width:600px){.per{grid-template-columns:minmax(0,1fr);gap:6px}}
+</style>
+</head>
+<body>
+<nav class="top"><a href="./">자금계산기</a><a href="schedule.html" aria-current="page">일정표</a></nav>
+<header>
+<h1>안양 집 일정표</h1>
+<p>2026-11-26 기준. 2/26(금) 잔금·등기·입주를 한 번에 하는 일정입니다.</p>
+</header>
+<main>
+<section class="per"><div class="when"><b>11/26~11/29</b><span>이번 주</span></div><ol><li>부동산 전화: 주말 집 보기 예약. 수리 잘된 집 위주, 빈 집인지, 잔금 전 도배·바닥 가능한지, 2/26 잔금 가능한지</li><li>은행 앱으로 주담대 예상 한도 조회</li><li>세무사 사무소 2~3곳 전화해서 상담료·업무 범위 비교</li><li>주말: 집 보기, 원천징수영수증 출력</li></ol></section><section class="per"><div class="when"><b>11/30~12/6</b><span>다음 주</span></div><ol><li>은행 상담: 대출 한도, 생애최초 LTV, 전세대출 남은 상태에서 잔금 날 갚는 조건으로 주담대 나오는지, 허가 일정 맞춰 승인 시점</li><li>부모님과 차용 금액·조건 확정 (증여와 섞을지 포함)</li><li>주말: 집 보기 계속</li></ol></section><section class="per"><div class="when"><b>12/7~12/13</b><span>결정 주간</span></div><ol><li>세무사 상담 (은행 결과, 자금 구성표, 증여 vs 은행 비교표 들고 가기)</li><li>집 결정 후 <b>토지거래허가 신청 (12/11 목표)</b></li><li>마음에 드는 집이 없으면 전세 자동 연장하고 천천히</li></ol></section><section class="per"><div class="when"><b>12/14~12/28</b><span>허가 기다리는 동안</span></div><ol><li>허가 기다리기 (약 2주) <span class="chk">확인 필요</span></li><li>차용증 작성(엄마, 아빠 각각), 확정일자 받기</li><li><b>집주인에게 퇴거 통보 (문자나 카톡으로, 12/28 마감)</b>. 2/26 금요일에 보증금 돌려받을 수 있는지 같이 요청</li><li>동안구 토지거래허가구역 연장 여부 확인 <span class="chk">확인 필요</span></li></ol></section><section class="per"><div class="when"><b>12월 말~1월</b><span>계약</span></div><ol><li>허가 나오면 매매계약, 계약금 송금. 특약에 잔금 전 도배·바닥 공사 허용</li><li><b>계약일로부터 30일 안에 자금조달계획서 제출</b> <span class="chk">확인 필요</span></li><li>대출 정식 신청</li><li>도배·바닥 업체 견적 2~3곳, 예약</li><li>생애최초 취득세 감면 적용 여부 법무사에게 확인 <span class="chk">확인 필요</span></li></ol></section><section class="per"><div class="when"><b>2월</b><span>잔금·입주</span></div><ol><li>설 연휴 전에 업체·이사 예약 확정</li><li>2월 중순 엄마, 아빠 송금 (각자 본인 계좌에서 차용증 금액 그대로)</li><li>잔금 며칠 전: 새 집 도배·바닥 (매도인 허락받은 경우)</li><li><b>2/26(금): 짐 빼기, 보증금 2억 3천 받기(전세대출 1억 8천 상환), 잔금·등기, 바로 입주</b></li></ol></section><section class="per"><div class="when"><b>3월 이후</b><span>입주 후</span></div><ol><li>전입신고 (잔금 후 3개월 안, 생애최초 감면 조건) <span class="chk">확인 필요</span></li><li>엄마, 아빠 매월 상환 자동이체 시작</li><li>화장실 공사는 4월쯤</li></ol></section>
+<div class="var"><h2>변수</h2><ol><li>집주인이 2/26에 보증금을 못 주면: 2/28(일) 짐 빼고 잔금은 3/2(화)</li><li>매도인이 잔금 전 공사를 안 해 주면: 일단 입주하고 공사하거나 짐을 본가에 두기</li></ol></div>
+<p class="note"><span class="chk">확인 필요</span> 표시는 규정이나 기간을 아직 확인하지 않은 항목입니다.</p>
+</main>
+</body>
+</html>
