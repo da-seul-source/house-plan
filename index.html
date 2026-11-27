@@ -85,6 +85,14 @@ details.set{border-top:1px solid var(--line);margin-top:10px;padding-top:10px}de
 .hero{border:2px solid var(--ac);border-radius:12px;padding:16px 18px;margin-bottom:22px}.hero .big{font-size:clamp(26px,4vw,34px);font-weight:600}
 .hero h2{margin:0 0 6px;font-size:15px;color:var(--mute)}.hero p{margin:6px 0;line-height:1.6}
 
+main section+section,main #out>section:first-child{margin-top:36px}
+main section h2{margin:0 0 12px}.hv{color:var(--ac);font-family:"IBM Plex Mono",monospace}
+.note{margin:12px 0 0;line-height:1.55}
+.list{list-style:none;margin:0;padding:0;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.list li{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:12px 14px;border-top:1px solid var(--line);font-size:15px}.list li:first-child{border-top:0}
+.list li span{min-width:0}.list li b{font:600 15px "IBM Plex Mono",monospace;white-space:nowrap}.list li.tot{background:var(--panel)}.list li.tot b{color:var(--ac)}
+.cmp3 u{text-decoration:none;font-size:.78em;font-family:"IBM Plex Sans KR",sans-serif;margin-left:1px;opacity:.8}
+footer{margin-top:36px}
 .tag{display:inline-block;background:var(--ac);color:light-dark(#fff,#04201d);font-weight:700;font-size:13px;padding:3px 10px;border-radius:99px}.tag.sm{font-size:11px;padding:1px 7px}
 :root{--fam:light-dark(#c2740c,#f0b35a);--bank:light-dark(#2f66c9,#7fa8ff)}
 .f{grid-template-columns:minmax(0,1fr) 140px;margin:6px 0}.f label{font-size:15px}
@@ -106,7 +114,7 @@ aside fieldset{padding:10px 0 6px}
 .cmp3 tbody th{text-align:left;font-weight:600;font-size:13px;width:31%}.cmp3 td.n{text-align:right;font-family:"IBM Plex Mono",monospace;font-size:14px}
 .cmp3 .w{background:var(--acs)}.cmp3 thead th.w{background:var(--ac);color:light-dark(#fff,#04201d)}.cmp3 thead th.w small{color:inherit;opacity:.85}.cmp3 thead th.w .tag{background:light-dark(#fff,#04201d);color:var(--ac)}
 .cmp3 tr.grp th{background:var(--panel);font-size:12px;color:var(--mute);padding:5px 8px}.cmp3 tr.big td{font-weight:700;font-size:15px}
-.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px}.pct{font-weight:700}.pct.g{color:var(--ac)}.pct.y{color:light-dark(#b26b00,#f0b35a)}.pct.r,small.r{color:#d9534f}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px}.pct{font-weight:700;background:none!important;padding:0}.pct.g{color:var(--ac)}.pct.y{color:light-dark(#b26b00,#f0b35a)}.pct.r,small.r{color:#d9534f}
 @media(max-width:380px){.cmp3{font-size:12px}.cmp3 td.n{font-size:12.5px}.pay b{font-size:38px}}
 </style>
 </head>
@@ -209,13 +217,13 @@ ${seg(b.mF,b.mB)}
 ${capBad?`<p class="warnbox">${B('y','상환능력')} 손길 세무사 기준(매달 갚는 돈 × 100)으로는 <b>${fmtE(cap)}</b>까지인데 차용은 ${fmtE(R.free)}이에요. 소명 요청이 올 수 있어요 (확인 필요).</p>`:''}
 </section>`;
  const cols=R.p,cell=(f,cls='')=>cols.map(p=>`<td class="n${p===b?' w':''}${cls}">${f(p)}</td>`).join('');
- const n=v=>v>0.5?fmt(v):'0';
- $('out').innerHTML=`<section><h2>나란히 비교 <small class="unit">단위 만원</small></h2>
+ const n=v=>v>0.5?fmt(v)+'<u>만</u>':'0';
+ $('out').innerHTML=`<section><h2>나란히 비교</h2>
 <div class="cmpwrap"><table class="cmp3"><thead><tr><th></th>${cols.map(p=>`<th class="${p===b?'w':''}">${p.k}<br><small>${p.k==='①'?'전부 증여':p.k==='②'?'증여+은행':'은행'}</small>${p===b?'<br><span class="tag sm">추천</span>':''}</th>`).join('')}</tr></thead><tbody>
 <tr class="grp"><th colspan="4">매달 갚는 돈</th></tr>
-<tr class="big"><th>합계</th>${cell(p=>fmtM(p.m))}</tr>
-<tr><th><i class="dot cf"></i>부모님</th>${cell(p=>fmtM(p.mF))}</tr>
-<tr><th><i class="dot cb"></i>은행</th>${cell(p=>fmtM(p.mB))}</tr>
+<tr class="big"><th>합계</th>${cell(p=>fmtM(p.m)+'<u>만</u>')}</tr>
+<tr><th><i class="dot cf"></i>부모님</th>${cell(p=>fmtM(p.mF)+'<u>만</u>')}</tr>
+<tr><th><i class="dot cb"></i>은행</th>${cell(p=>fmtM(p.mB)+'<u>만</u>')}</tr>
 <tr><th>실수령 대비</th>${cell(p=>`<span class="pct ${p.pct<=50?'g':p.pct<=60?'y':'r'}">${p.pct.toFixed(0)}%</span>`)}</tr>
 <tr class="grp"><th colspan="4">받는 돈</th></tr>
 <tr><th>증여</th>${cell(p=>n(p.G))}</tr>
@@ -230,14 +238,14 @@ ${capBad?`<p class="warnbox">${B('y','상환능력')} 손길 세무사 기준(�
 </tbody></table></div>
 <p class="note">부모님 빚 ${fmtE(R.ball)}은 ${y}년 뒤 집 팔아서 갚는 계획. 비용 = 증여세 + 은행 이자(${I.years}년). ②는 공제 + 과세표준 1억(10%)까지 증여. 세율·한도는 예상치, 확인 필요.</p>
 </section>
-<section><h2>부대비용 ${fmt(R.costs)}만</h2>
-<table class="stack"><thead><tr><th>항목</th><th class="n">금액</th></tr></thead><tbody>
-${[['취득세 (매매가 × '+R.acqRate+'%)',R.acq],['지방교육세',R.edu],...(R.agri?[['농어촌특별세',R.agri]]:[]),...(R.relief?[['생애최초 감면 (확인 필요)',R.relief]]:[]),['중개보수 (상한 '+R.brokerRate+'%) + 부가세',R.broker+R.vat],['법무사·채권·이사·세무사·공증 등',R.direct]].map(r=>`<tr><td>${r[0]}</td><td class="n">${fmt(r[1])}</td></tr>`).join('')}
-</tbody></table></section>
-<section><h2>자금조달계획서에 적을 금액 (${b.k} 기준)</h2>
-<table class="stack"><thead><tr><th>항목</th><th class="n">금액</th></tr></thead><tbody>
-${[['예금·주식 등',Math.max(0,b.put-Math.min(I.jeonse,b.put))],['지금 집 전세보증금',Math.min(I.jeonse,b.put)],['부모님 증여',b.G-b.T>0?b.G:0],['주택담보대출',b.bank],['가족 무이자 차용',R.free]].filter(r=>r[1]>0.5).map(r=>`<tr><td>${r[0]}</td><td class="n">${fmt(r[1])}</td></tr>`).join('')}
-</tbody></table>
+<section><h2>부대비용 <span class="hv">${fmtE(R.costs)}</span></h2>
+<ul class="list">
+${[['취득세 (매매가 × '+R.acqRate+'%)',R.acq],['지방교육세',R.edu],...(R.agri?[['농어촌특별세',R.agri]]:[]),...(R.relief?[['생애최초 감면 (확인 필요)',R.relief]]:[]),['중개보수 (상한 '+R.brokerRate+'%) + 부가세',R.broker+R.vat],['법무사·채권·이사·세무사·공증 등',R.direct]].map(r=>`<li><span>${r[0]}</span><b>${fmtE(r[1])}</b></li>`).join('')}
+</ul></section>
+<section><h2>자금조달계획서에 적을 금액 <span class="unit">${b.k} 기준</span></h2>
+<ul class="list">
+${[['예금·주식 등',Math.max(0,b.put-Math.min(I.jeonse,b.put))],['지금 집 전세보증금',Math.min(I.jeonse,b.put)],['부모님 증여',b.G-b.T>0?b.G:0],['주택담보대출',b.bank],['가족 무이자 차용',R.free]].filter(r=>r[1]>0.5).map(r=>`<li><span>${r[0]}</span><b>${fmtE(r[1])}</b></li>`).join('')}<li class="tot"><span>합계 (= 매매가)</span><b>${fmtE(I.price)}</b></li>
+</ul>
 <p class="note">증여받은 ${fmtE(b.G)} 중 증여세만큼은 세금으로 나가서, 집에 들어가는 돈은 내 돈 ${fmtE(b.put)} + 증여 + 차용 + 대출 = 매매가입니다.</p></section>
 <footer>참고용 대략치입니다. 은행 인지세는 넣었고 회사 이자지원은 뺐습니다. 은행 금리는 은행에서 받은 값으로 바꿔 보세요. <a href="old.html">예전 상세 계산기</a></footer>`}
 load();render();
