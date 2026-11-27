@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta http-equiv="Cache-Control" content="no-cache">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
 <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0c1615" media="(prefers-color-scheme: dark)">
 <title>안양 집 자금계산기</title>
@@ -119,7 +119,7 @@ aside fieldset{padding:10px 0 6px}
 .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px}.pct{font-weight:700;background:none!important;padding:0}.pct.g{color:var(--ac)}.pct.y{color:light-dark(#b26b00,#f0b35a)}.pct.r,small.r{color:#d9534f}
 @media(max-width:380px){.cmp3{font-size:12px}.cmp3 td.n{font-size:12.5px}.pay b{font-size:38px}}
 </style>
-<link rel="stylesheet" href="common.css?v=202611270629">
+<link rel="stylesheet" href="common.css?v=202611270633">
 </head>
 <body>
 <nav class="top"><a href="./" aria-current="page">계산기</a><a href="schedule.html">일정표</a><a href="fund.html">조달계획서</a><a href="taxpro.html">세무사</a></nav>
@@ -131,30 +131,30 @@ aside fieldset{padding:10px 0 6px}
 <aside>
 <form id="form" onsubmit="return false">
 <fieldset><legend>집</legend>
-<div class="f"><label for="price">매매가 <span class="u">만원</span></label><input type="number" inputmode="decimal" id="price" step="100"></div>
+<div class="f"><label for="price">매매가 <span class="u">만원</span></label><input type="text" inputmode="decimal" autocomplete="off" id="price" step="100"></div>
 </fieldset>
 <fieldset><legend>내 돈</legend>
-<div class="f"><label for="jeonse">지금 집 전세보증금 <span class="u">만원</span></label><input type="number" inputmode="decimal" id="jeonse" step="100"></div>
-<div class="f"><label for="cash">예금·주식 등 <span class="u">만원</span></label><input type="number" inputmode="decimal" id="cash" step="100"></div>
-<div class="f"><label for="reserve">비상금으로 남길 돈 <span class="u">만원</span></label><input type="number" inputmode="decimal" id="reserve" step="100"></div>
-<div class="f"><label for="income">월 실수령 <span class="u">만원</span></label><input type="number" inputmode="decimal" id="income" step="10"></div>
+<div class="f"><label for="jeonse">지금 집 전세보증금 <span class="u">만원</span></label><input type="text" inputmode="decimal" autocomplete="off" id="jeonse" step="100"></div>
+<div class="f"><label for="cash">예금·주식 등 <span class="u">만원</span></label><input type="text" inputmode="decimal" autocomplete="off" id="cash" step="100"></div>
+<div class="f"><label for="reserve">비상금으로 남길 돈 <span class="u">만원</span></label><input type="text" inputmode="decimal" autocomplete="off" id="reserve" step="100"></div>
+<div class="f"><label for="income">월 실수령 <span class="u">만원</span></label><input type="text" inputmode="decimal" autocomplete="off" id="income" step="10"></div>
 </fieldset>
 <fieldset><legend>은행</legend>
-<div class="f"><label for="rate">은행 금리 %</label><input type="number" inputmode="decimal" id="rate" step="0.1"></div>
+<div class="f"><label for="rate">은행 금리 %</label><input type="text" inputmode="decimal" autocomplete="off" id="rate" step="0.1"></div>
 </fieldset>
 <fieldset><legend>가족 무이자 차용 (한 분)</legend>
-<div class="f"><label for="fsFree">무이자 차용액 <span class="u">만원</span></label><input type="number" inputmode="decimal" id="fsFree" step="100"><small id="limD"></small></div>
-<div class="f"><label for="fsTerm">만기 (년)</label><input type="number" inputmode="decimal" id="fsTerm" step="1"><small>만기에 남은 돈은 집 팔아서 상환</small></div>
-<div class="f"><label for="fsRepay">매년 상환 비율 %</label><input type="number" inputmode="decimal" id="fsRepay" step="0.5"></div>
+<div class="f"><label for="fsFree">무이자 차용액 <span class="u">만원</span></label><input type="text" inputmode="decimal" autocomplete="off" id="fsFree" step="100"><small id="limD"></small></div>
+<div class="f"><label for="fsTerm">만기 (년)</label><input type="text" inputmode="decimal" autocomplete="off" id="fsTerm" step="1"><small>만기에 남은 돈은 집 팔아서 상환</small></div>
+<div class="f"><label for="fsRepay">매년 상환 비율 %</label><input type="text" inputmode="decimal" autocomplete="off" id="fsRepay" step="0.5"></div>
 </fieldset>
 <details class="set"><summary>부대비용 (견적 받으면 고치기)</summary>
-<div class="f"><label for="lawyer">법무사·등기 <span class="u">만원</span></label><input type="number" inputmode="decimal" id="lawyer"></div>
-<div class="f"><label for="bond">국민주택채권 할인 <span class="u">만원</span></label><input type="number" inputmode="decimal" id="bond"></div>
-<div class="f"><label for="move">이사비 <span class="u">만원</span></label><input type="number" inputmode="decimal" id="move"></div>
-<div class="f"><label for="taxpro">세무사 <span class="u">만원</span></label><input type="number" inputmode="decimal" id="taxpro"><small>모담 견적 33 (조달계획서 포함)</small></div>
-<div class="f"><label for="notary">차용증 확정일자·공증 <span class="u">만원</span></label><input type="number" inputmode="decimal" id="notary"></div>
-<div class="f"><label for="floor">도배·바닥 <span class="u">만원</span></label><input type="number" inputmode="decimal" id="floor"></div>
-<div class="f"><label for="appl">가전·가구 <span class="u">만원</span></label><input type="number" inputmode="decimal" id="appl"></div>
+<div class="f"><label for="lawyer">법무사·등기 <span class="u">만원</span></label><input type="text" inputmode="decimal" autocomplete="off" id="lawyer"></div>
+<div class="f"><label for="bond">국민주택채권 할인 <span class="u">만원</span></label><input type="text" inputmode="decimal" autocomplete="off" id="bond"></div>
+<div class="f"><label for="move">이사비 <span class="u">만원</span></label><input type="text" inputmode="decimal" autocomplete="off" id="move"></div>
+<div class="f"><label for="taxpro">세무사 <span class="u">만원</span></label><input type="text" inputmode="decimal" autocomplete="off" id="taxpro"><small>모담 견적 33 (조달계획서 포함)</small></div>
+<div class="f"><label for="notary">차용증 확정일자·공증 <span class="u">만원</span></label><input type="text" inputmode="decimal" autocomplete="off" id="notary"></div>
+<div class="f"><label for="floor">도배·바닥 <span class="u">만원</span></label><input type="text" inputmode="decimal" autocomplete="off" id="floor"></div>
+<div class="f"><label for="appl">가전·가구 <span class="u">만원</span></label><input type="text" inputmode="decimal" autocomplete="off" id="appl"></div>
 <p class="hint">취득세·중개보수·은행 인지세는 자동 계산합니다.</p>
 </details>
 <p class="hint">고정값: 생애최초 예, 85㎡ 초과 아니오, 은행 30년, 대출 한도 매매가의 40%, 적정이자율 4.6%, 남은 증여 공제 1,200만.</p>
@@ -177,8 +177,8 @@ function fmt(v,d=0){const x=Math.abs(v)<0.5*Math.pow(10,-d)?0:v;return x.toLocal
 const fmtM=v=>fmt(v,1);
 function fmtE(v){const neg=v<0,a=Math.round(Math.abs(v));let s;if(a>=10000){const e=Math.floor(a/10000),r=a%10000;s=e+'억'+(r?' '+r.toLocaleString('ko-KR')+'만':'')}else s=a.toLocaleString('ko-KR')+'만';return(neg?'−':'')+s}
 const B=(c,t)=>`<span class="badge ${c}">${t}</span>`;
-function load(s){if(!s){s={};try{s=JSON.parse(localStorage.getItem(KEY)||'{}')||{}}catch(e){}}for(const k of ids){const v=k in s?s[k]:DEF[k],el=$(k);if(el.type==='checkbox')el.checked=!!v;else el.value=v}}
-function read(){const I=Object.assign({},FIX);for(const k of ids){const el=$(k);I[k]=el.type==='checkbox'?el.checked:(parseFloat(el.value)||0)}return I}
+function load(s){if(!s){s={};try{s=JSON.parse(localStorage.getItem(KEY)||'{}')||{}}catch(e){}}for(const k of ids){const v=k in s?s[k]:DEF[k],el=$(k);if(el.type==='checkbox')el.checked=!!v;else el.value=typeof v==='number'?v.toLocaleString('ko-KR',{maximumFractionDigits:2}):v}}
+function read(){const I=Object.assign({},FIX);for(const k of ids){const el=$(k);I[k]=el.type==='checkbox'?el.checked:(parseFloat(String(el.value).replace(/[^0-9.\-]/g,''))||0)}return I}
 function save(I){let o={};try{o=JSON.parse(localStorage.getItem(KEY)||'{}')||{}}catch(e){}for(const k of ids)o[k]=I[k];try{localStorage.setItem(KEY,JSON.stringify(o))}catch(e){}}
 const touch=()=>{try{localStorage.setItem(TK,Date.now())}catch(e){}if(window.CPush)CPush()};
 window.CALC={get:()=>{let o={};try{o=JSON.parse(localStorage.getItem(KEY)||'{}')||{}}catch(e){}return{s:JSON.stringify(Object.assign(o,read())),t:+(localStorage.getItem(TK)||0)}},apply(o){try{localStorage.setItem(KEY,o.s);localStorage.setItem(TK,o.t)}catch(e){}load();render()}};
@@ -253,7 +253,7 @@ ${[['예금·주식 등',Math.max(0,b.put-Math.min(I.jeonse,b.put))],['지금 �
 <footer>참고용 대략치입니다. 은행 인지세는 넣었고 회사 이자지원은 뺐습니다. 은행 금리는 은행에서 받은 값으로 바꿔 보세요. <a href="old.html">예전 상세 계산기</a></footer>`}
 load();render();
 $('form').addEventListener('input',()=>{render();touch()});
-$('form').addEventListener('change',()=>{render();touch()});
+$('form').addEventListener('change',e=>{const t=e.target;if(t.inputMode==='decimal'){const v=parseFloat(String(t.value).replace(/[^0-9.\-]/g,''));if(!isNaN(v))t.value=v.toLocaleString('ko-KR',{maximumFractionDigits:2})}render();touch()});
 $('reset').addEventListener('click',()=>{load(DEF);render();touch()});
 }
 </script>
