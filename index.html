@@ -120,6 +120,7 @@ nav.top{position:sticky;top:0;z-index:10;background:var(--bg);display:flex;gap:4
 <div class="f"><label for="fsFree">무이자 차용액</label><input type="number" id="fsFree" step="100"><small id="fsLim"></small></div>
 <div class="f"><label for="fsMkt">적정이자율 %</label><input type="number" id="fsMkt" step="0.1"><small>확인 필요: 매년 바뀔 수 있음</small></div>
 <div class="f"><label for="fsRate">B안 차용 이자율 %</label><input type="number" id="fsRate" step="0.1" placeholder="자동"><small id="fsRateD"></small></div>
+<div class="f"><label for="fsTerm">차용 만기 (년)</label><input type="number" id="fsTerm" step="1" min="0"><small id="fsTermD"></small></div>
 <div class="f"><label for="fsITax">부모님 이자소득세율 %</label><input type="number" id="fsITax" step="0.5"><small>비영업대금 27.5% 추정, 세무사 확인 필요</small></div>
 <p class="hint">위 "가족 무이자 차용"과 별개로, 한 분에게만 빌리는 구조를 아래 "가족 자금 구조 비교"에서 A(증여)/B(추가 차용+이자)/D(은행)로 나란히 봅니다.</p>
 </fieldset>
@@ -163,7 +164,7 @@ nav.top{position:sticky;top:0;z-index:10;background:var(--bg);display:flex;gap:4
 </div>
 
 <script id="calc">
-const DEF={price:58000,first:true,over85:false,jeonse:5000,cash:13000,reserve:500,taxCash:0,mom:20000,dad:20000,repay:5,unit:1000,rate:5.0,years:30,ltv:40,cap:60000,tenure:6000,tax:0,lawyer:100,bond:40,move:150,taxpro:30,notary:10,floor:0,appl:0,income:450,target:50,giftDed:1200,giftAuto:true,gift:10000,mode:'bank',mixGift:1200,fsLender:'mom',fsFree:21700,fsMkt:4.6,fsRate:0,fsITax:27.5};
+const DEF={price:58000,first:true,over85:false,jeonse:5000,cash:13000,reserve:500,taxCash:0,mom:20000,dad:20000,repay:5,unit:1000,rate:5.0,years:30,ltv:40,cap:60000,tenure:6000,tax:0,lawyer:100,bond:40,move:150,taxpro:30,notary:10,floor:0,appl:0,income:450,target:50,giftDed:1200,giftAuto:true,gift:10000,mode:'bank',mixGift:1200,fsLender:'mom',fsFree:21700,fsMkt:4.6,fsRate:0,fsITax:27.5,fsTerm:5};
 function pmt(P,ratePct,years){const n=Math.round(years*12),r=ratePct/100/12;if(P<=0||n<=0)return 0;return r===0?P/n:P*r/(1-Math.pow(1+r,-n))}
 function pv(M,ratePct,years){const n=Math.round(years*12),r=ratePct/100/12;if(M<=0||n<=0)return 0;return r===0?M*n:M*(1-Math.pow(1+r,-n))/r}
 function cumInt(P,ratePct,years,months){const n=Math.round(years*12),r=ratePct/100/12,m=pmt(P,ratePct,years);let b=P,s=0;for(let i=0;i<Math.min(months,n);i++){const it=b*r;s+=it;b-=m-it}return s}
@@ -227,10 +228,10 @@ function calc(I){
  R.warns=W;R.fs=fsCalc(I,R);return R}
 function fsCalc(I,R){
  const left=Math.max(0,I.jeonse+I.cash-R.noStamp-I.reserve),need=Math.max(0,I.price-left),mkt=Math.max(0.01,I.fsMkt),lim=1000/(mkt/100);
- const free=Math.min(Math.max(0,I.fsFree),need),ded=Math.min(I.giftDed,need-free),X=Math.max(0,need-free-ded),rp=I.repay>0?I.repay:5,yrs=100/rp,N=Math.round(yrs*12);
+ const free=Math.min(Math.max(0,I.fsFree),need),ded=Math.min(I.giftDed,need-free),X=Math.max(0,need-free-ded),rp=I.repay>0?I.repay:5,yrs=100/rp,NF=Math.round(yrs*12),N=I.fsTerm>0?Math.min(NF,Math.round(I.fsTerm*12)):NF,TY=N/12;
  const fam=L=>L*rp/100/12,inc=Math.max(I.income,1e-9),pct=m=>m/inc*100;
- const sched=(L,r)=>{let b=L,c=[0];const pr=L/N;for(let i=0;i<N;i++){c.push(c[i]+b*r/1200);b-=pr}return c};
- const lv=p=>p<=I.target?'g':p<=60?'y':'r';
+ const ball=L=>Math.max(0,L-L/NF*N),sched=(L,r)=>{let b=L,c=[0];const pr=L/NF;for(let i=0;i<N;i++){c.push(c[i]+b*r/1200);b-=pr}return c};
+ const lv=p=>p<=I.target?'g':p<=60?'y':'r',sv=b=>N>0?b/N:0;
  // A
  let G=ded+X;for(let i=0;i<60;i++)G=ded+X+Math.max(0,giftTax(G,I.giftDed)-I.taxCash);
  const tA=giftTax(G,I.giftDed),mA=fam(free);
@@ -244,11 +245,11 @@ function fsCalc(I,R){
  const mD=fam(free)+pmt(X,I.rate,I.years),iD=cumInt(X,I.rate,I.years,1e9);
  const who=I.fsLender==='dad'?'아빠':'엄마',oth=I.fsLender==='dad'?'엄마':'아빠';
  const rows=[
-  {k:'A',t:'나머지 증여',how:`${who} 무이자 ${fmtE(free)} + 증여 ${fmtE(G)} (공제 ${fmtE(ded)} 포함, 세금까지)`,cost:tA,cl:'증여세',m:mA,back:'증여분은 안 갚음 · 차용 '+fmtE(free)+'만 갚음',w:''},
-  {k:'B',t:'같은 분 추가 차용 + 이자',how:`${who}에게 총 ${fmtE(LB)} 차용, 이자율 ${rB.toFixed(2)}% (최소 ${rmin.toFixed(2)}%) + 증여 ${fmtE(ded)}`,cost:iB+tB0,cl:'이자 총액',m:mB,back:'전부 갚음 ('+fmtY(yrs)+'년)',w:(rB<rmin-1e-9?'이자율이 최소보다 낮아 증여로 볼 수 있습니다. ':'')+`부모님 이자소득세 약 ${fmt(iB*I.fsITax/100)}만 (확인 필요). 이자는 매달 계좌이체로 실제 지급.`},
-  {k:'D',t:'(참고) 은행 대출',how:`${who} 무이자 ${fmtE(free)} + 은행 ${fmtE(X)} + 증여 ${fmtE(ded)}`,cost:iD+tB0,cl:'은행 이자',m:mD,back:'전부 갚음',w:'회사 이자지원은 빼고 계산했습니다.'}];
- for(const r of rows){r.p=pct(r.m);r.rest=I.income-r.m;r.lv=lv(r.p)}
- return{left,need,free,ded,X,lim,mkt,rmin,rB,LB,G,tA,iB,be,N,rows,yrs}}
+  {k:'A',t:'나머지 증여',how:`${who} 무이자 ${fmtE(free)} + 증여 ${fmtE(G)} (공제 ${fmtE(ded)} 포함, 세금까지)`,cost:tA,cl:'증여세',m:mA,bl:ball(free),back:'증여분은 안 갚음 · 차용 '+fmtE(free)+'만 갚음'+(N<NF?' ('+fmtY(TY)+'년 뒤 일시상환)':''),w:''},
+  {k:'B',t:'같은 분 추가 차용 + 이자',how:`${who}에게 총 ${fmtE(LB)} 차용, 이자율 ${rB.toFixed(2)}% (최소 ${rmin.toFixed(2)}%) + 증여 ${fmtE(ded)}`,cost:iB+tB0,cl:'이자 총액',m:mB,bl:ball(LB),back:N<NF?fmtY(TY)+'년 분할 후 만기 일시상환':'전부 갚음 ('+fmtY(yrs)+'년)',w:(rB<rmin-1e-9?'이자율이 최소보다 낮아 증여로 볼 수 있습니다. ':'')+`부모님 이자소득세 약 ${fmt(iB*I.fsITax/100)}만 (확인 필요). 이자는 매달 계좌이체로 실제 지급.`},
+  {k:'D',t:'(참고) 은행 대출',how:`${who} 무이자 ${fmtE(free)} + 은행 ${fmtE(X)} + 증여 ${fmtE(ded)}`,cost:iD+tB0,cl:'은행 이자',m:mD,bl:ball(free),back:'전부 갚음',w:'회사 이자지원은 빼고 계산했습니다.'}];
+ for(const r of rows){r.sv=sv(r.bl);r.p=pct(r.m);r.p2=pct(r.m+r.sv);r.rest=I.income-r.m;r.lv=lv(r.p);r.lv2=r.bl>0.5?lv(r.p2):r.lv}
+ return{left,need,free,ded,X,lim,mkt,rmin,rB,LB,G,tA,iB,be,N,NF,TY,rows,yrs}}
 function fmt(v,d=0){const x=Math.abs(v)<0.5*Math.pow(10,-d)?0:v;return x.toLocaleString('ko-KR',{minimumFractionDigits:d,maximumFractionDigits:d})}
 function fmtM(v){return fmt(v,1)}
 function fmtY(v){return Number.isInteger(Math.round(v*10)/10)?String(Math.round(v)):(Math.round(v*10)/10).toFixed(1)}
@@ -271,7 +272,7 @@ function render(){
  const I=read();save(I);const R=calc(I);
  $('repayDesc').textContent=I.repay>0?`매년 원금의 ${fmtY(I.repay)}% → ${fmtY(100/I.repay)}년에 다 갚음`:'상환하지 않음';
  $('loanAuto').textContent=fmtE(R.loan);
- {const F=R.fs;$('fsLim').textContent='무이자 한도 약 '+fmtE(F.lim)+' (1천만 ÷ '+F.mkt+'%)'+(I.fsFree>F.lim?' · 한도 초과!':'');$('fsRateD').textContent=F.rmin>0?'최소 '+F.rmin.toFixed(2)+'% → 비우면 '+(Math.round((F.rmin+0.3)*100)/100).toFixed(2)+'%':'총 차용이 한도 안이라 이자 없어도 됨';}
+ {const F=R.fs;$('fsLim').textContent='무이자 한도 약 '+fmtE(F.lim)+' (1천만 ÷ '+F.mkt+'%)'+(I.fsFree>F.lim?' · 한도 초과!':'');$('fsTermD').textContent=F.N<F.NF?fmtY(F.TY)+'년 동안 '+fmtY(F.TY*I.repay)+'% 갚고 나머지 일시상환':'만기 없음 → 끝까지 분할 상환';$('fsRateD').textContent=F.rmin>0?'최소 '+F.rmin.toFixed(2)+'% → 비우면 '+(Math.round((F.rmin+0.3)*100)/100).toFixed(2)+'%':'총 차용이 한도 안이라 이자 없어도 됨';}
  for(const b of document.querySelectorAll('.seg button'))b.setAttribute('aria-pressed',b.dataset.m===I.mode);
  $('mixBox').style.display=I.mode==='mix'?'':'none';
  $('modeDesc').textContent=I.mode==='gift'?'모자라는 돈을 은행 대신 부모님 증여로 채웁니다. 증여세는 내 돈에서 냅니다.':I.mode==='mix'?'아래 금액만 증여받고, 나머지 모자라는 돈은 은행 대출로 채웁니다.':'모자라는 돈을 은행 주택담보대출로 채웁니다.';
@@ -390,12 +391,13 @@ ${R.zero?`<p class="sent">은행 대출을 0으로 만들려면 증여를 <b>${f
 ${(()=>{const F=R.fs;if(F.X<=0.5)return '<p class="sent">무이자 차용과 증여 공제만으로 충분해서 나머지 금액이 없습니다.</p>';
 const bey=F.be?(F.be<12?F.be+'개월':(F.be/12).toFixed(1)+'년'):null;
 return `<p class="sent">내 돈 ${fmtE(F.left)}, 무이자 ${fmtE(F.free)}, 증여 공제 ${fmtE(F.ded)}를 넣고 <b>나머지 ${fmtE(F.X)}</b>을 어떻게 채울지 비교합니다.</p>
-<p class="sent">${F.rB<=0?'B안은 총 차용이 한도 안이라 이자가 없어서 <b>B가 유리</b>합니다.':bey?`B안 이자 누적이 A안 증여세 ${fmt(F.tA)}만을 넘는 건 <b>${bey}</b>째입니다. <b>그 전에 차용을 다 갚으면 B, 더 오래 갖고 있으면 A</b>가 쌉니다.`:`${fmtY(F.yrs)}년 다 갚아도 B안 이자가 A안 증여세보다 적어서 <b>B가 유리</b>합니다.`}</p>
-<table class="stack"><thead><tr><th>안</th><th>채우는 방법</th><th class="n">세금·이자 총액</th><th class="n">매달 나가는 돈</th><th class="n">실수령 대비</th><th class="n">남는 월급</th><th>원금</th></tr></thead><tbody>
-${F.rows.map(r=>row(['<b>'+r.k+'</b> '+r.t,r.how+(r.w?'<br><small>'+B('g','주의')+' '+r.w+'</small>':''),[fmt(r.cost)+'<br><small>'+r.cl+'</small>'],[fmtM(r.m)+'만'],[B(r.lv,r.p.toFixed(0)+'%')],[fmtM(r.rest)+'만'],r.back])).join('')}
+<p class="sent">${F.rB<=0?'B안은 총 차용이 한도 안이라 이자가 없어서 <b>B가 유리</b>합니다.':bey?`B안 이자 누적이 A안 증여세 ${fmt(F.tA)}만을 넘는 건 <b>${bey}</b>째입니다. <b>그 전에 차용을 다 갚으면 B, 더 오래 갖고 있으면 A</b>가 쌉니다.`:`${F.N<F.NF?fmtY(F.TY)+'년 만기까지':fmtY(F.yrs)+'년 다 갚아도'} B안 이자가 A안 증여세보다 적어서 <b>B가 유리</b>합니다.`}</p>
+<table class="stack"><thead><tr><th>안</th><th>채우는 방법</th><th class="n">세금·이자 총액</th><th class="n">매달 나가는 돈</th><th class="n">실수령 대비</th><th class="n">남는 월급</th><th class="n">만기 일시상환</th><th>원금</th></tr></thead><tbody>
+${F.rows.map(r=>row(['<b>'+r.k+'</b> '+r.t,r.how+(r.w?'<br><small>'+B('g','주의')+' '+r.w+'</small>':''),[fmt(r.cost)+'<br><small>'+r.cl+'</small>'],[fmtM(r.m)+'만'],[B(r.lv,r.p.toFixed(0)+'%')],[fmtM(r.rest)+'만'],[r.bl>0.5?fmt(r.bl)+'<br><small>매달 '+fmtM(r.sv)+'만 모으면 '+r.p2.toFixed(0)+'%</small>':'-'],r.back])).join('')}
 </tbody></table>
+${F.rows.some(r=>r.bl>0.5&&r.lv2==='r')?`<p class="sent">${B('r','만기 상환 경고')} ${F.rows.filter(r=>r.bl>0.5&&r.lv2==='r').map(r=>r.k+'안 '+fmtE(r.bl)).join(', ')}을 만기에 한 번에 갚아야 합니다. 매달 상환액에 모을 돈까지 더하면 실수령의 60%를 넘어서, 만기에 못 갚으면 차용을 증여로 볼 위험이 있습니다 (확인 필요).</p>`:''}
 ${F.rows.some(r=>r.lv==='r')?`<p class="sent">${B('r','상환능력 경고')} ${F.rows.filter(r=>r.lv==='r').map(r=>r.k).join(', ')}안은 매달 나가는 돈이 실수령의 60%를 넘습니다. 갚을 능력이 부족하면 차용을 증여로 볼 위험이 있습니다 (확인 필요).</p>`:F.rows.some(r=>r.lv==='y')?`<p class="sent">${B('y','빠듯함')} ${F.rows.filter(r=>r.lv==='y').map(r=>r.k).join(', ')}안은 목표 ${I.target}%를 넘습니다.</p>`:''}
-<p class="note">매달 나가는 돈은 첫해 기준입니다 (차용 원금 매년 ${fmtY(100/(I.repay||5))}분의 1 + 이자, 은행은 원리금균등). B안 이자는 원금이 줄면서 같이 줄어듭니다. 최소 이자율 = 적정이자율 − 1천만 ÷ 총 차용액, 이자는 초과분이 아니라 차용 전체에 붙습니다. 세금·이자 총액에는 증여 공제분 증여세(0)도 포함했습니다. 세법 해석(대여자별 합산, 이자소득세율, 적정이자율)은 확인 필요입니다.</p>`})()}
+<p class="note">매달 나가는 돈은 첫해 기준입니다 (차용 원금 매년 ${fmtY(I.repay||5)}% + 이자, 만기에 남은 원금 일시상환, 은행은 원리금균등). B안 이자는 원금이 줄면서 같이 줄어듭니다. 최소 이자율 = 적정이자율 − 1천만 ÷ 총 차용액, 이자는 초과분이 아니라 차용 전체에 붙습니다. 세금·이자 총액에는 증여 공제분 증여세(0)도 포함했습니다. 세법 해석(대여자별 합산, 이자소득세율, 적정이자율)은 확인 필요입니다.</p>`})()}
 </section>
 <section><h2>예산으로 볼 수 있는 집값</h2>
 <p class="sent">월 예산 <b>${fmt(R.budget)}만원</b> 안에서 은행 대출은 <b>${fmtE(R.afford)}</b>까지 감당할 수 있어 집값 약 <b>${fmtE(R.view)}</b>까지 볼 수 있습니다. 이때 생활비로 매달 <b>${fmtM(R.viewRest)}만원</b>이 남습니다.</p>
