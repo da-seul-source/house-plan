@@ -80,9 +80,10 @@ nav.top{position:sticky;top:0;z-index:10;background:var(--bg);display:flex;gap:4
 @media(max-width:900px){.stack thead{display:none}.stack tr{display:grid;padding-block:10px;border-bottom:1px solid var(--line)}.stack td{display:flow-root;border:0;padding:3px 0;padding-inline-start:8em;text-align:start}.stack td.n{text-align:right}.stack td::before{content:attr(data-l);float:inline-start;width:7.5em;margin-inline-start:-8em;white-space:normal;color:var(--mute);text-align:left}.stack td:empty{display:none}}
 </style>
 <script>new MutationObserver(()=>{for(const c of document.querySelectorAll('.stack td:not([data-l])')){let i=0,p=c;while(p=p.previousElementSibling)i+=p.colSpan;c.dataset.l=c.closest('table').rows[0].cells[i]?.textContent||''}}).observe(document,{childList:true,subtree:true})</script>
+<link rel="stylesheet" href="common.css">
 </head>
 <body>
-<nav class="top"><a href="./">자금계산기</a><a href="schedule.html">일정표</a><a href="fund.html">자금조달계획서</a><a href="taxpro.html">세무사 상담</a></nav>
+<nav class="top"><a href="./">계산기</a><a href="schedule.html">일정표</a><a href="fund.html">조달계획서</a><a href="taxpro.html">세무사</a></nav>
 <header>
 <h1>안양 집 자금계산기 (예전 상세판)</h1>
 <p>숫자를 바꾸면 대출액, 매달 부담, 자금조달계획서 금액이 바로 다시 계산됩니다. 단위는 만원입니다.</p>

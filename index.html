@@ -94,6 +94,7 @@ main section h2{margin:0 0 12px}.hv{color:var(--ac);font-family:"IBM Plex Mono",
 .cmp3 u{text-decoration:none;font-size:.78em;font-family:"IBM Plex Sans KR",sans-serif;margin-left:1px;opacity:.8}
 footer{margin-top:36px}
 .tag{display:inline-block;background:var(--ac);color:light-dark(#fff,#04201d);font-weight:700;font-size:13px;padding:3px 10px;border-radius:99px}.tag.sm{font-size:11px;padding:1px 7px}
+.u{font-size:12px;color:var(--mute);font-weight:400}aside legend{margin-bottom:2px}
 :root{--fam:light-dark(#c2740c,#f0b35a);--bank:light-dark(#2f66c9,#7fa8ff)}
 .f{grid-template-columns:minmax(0,1fr) 140px;margin:6px 0}.f label{font-size:15px}
 input[type=number]{min-height:46px;font-size:17px;font-weight:600}
@@ -117,9 +118,10 @@ aside fieldset{padding:10px 0 6px}
 .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px}.pct{font-weight:700;background:none!important;padding:0}.pct.g{color:var(--ac)}.pct.y{color:light-dark(#b26b00,#f0b35a)}.pct.r,small.r{color:#d9534f}
 @media(max-width:380px){.cmp3{font-size:12px}.cmp3 td.n{font-size:12.5px}.pay b{font-size:38px}}
 </style>
+<link rel="stylesheet" href="common.css">
 </head>
 <body>
-<nav class="top"><a href="./" aria-current="page">자금계산기</a><a href="schedule.html">일정표</a><a href="fund.html">자금조달계획서</a><a href="taxpro.html">세무사 상담</a></nav>
+<nav class="top"><a href="./" aria-current="page">계산기</a><a href="schedule.html">일정표</a><a href="fund.html">조달계획서</a><a href="taxpro.html">세무사</a></nav>
 <header>
 <h1>안양 집 자금계산기</h1>
 <p>매매가와 내 돈만 넣으면 뭐가 이득인지, 매달 얼마 내는지 바로 나옵니다. 단위는 만원입니다.</p>
@@ -128,30 +130,30 @@ aside fieldset{padding:10px 0 6px}
 <aside>
 <form id="form" onsubmit="return false">
 <fieldset><legend>집</legend>
-<div class="f"><label for="price">매매가</label><input type="number" inputmode="decimal" id="price" step="100"></div>
+<div class="f"><label for="price">매매가 <span class="u">만원</span></label><input type="number" inputmode="decimal" id="price" step="100"></div>
 </fieldset>
 <fieldset><legend>내 돈</legend>
-<div class="f"><label for="jeonse">지금 집 전세보증금</label><input type="number" inputmode="decimal" id="jeonse" step="100"></div>
-<div class="f"><label for="cash">예금·주식 등</label><input type="number" inputmode="decimal" id="cash" step="100"></div>
-<div class="f"><label for="reserve">비상금으로 남길 돈</label><input type="number" inputmode="decimal" id="reserve" step="100"></div>
-<div class="f"><label for="income">월 실수령</label><input type="number" inputmode="decimal" id="income" step="10"></div>
+<div class="f"><label for="jeonse">지금 집 전세보증금 <span class="u">만원</span></label><input type="number" inputmode="decimal" id="jeonse" step="100"></div>
+<div class="f"><label for="cash">예금·주식 등 <span class="u">만원</span></label><input type="number" inputmode="decimal" id="cash" step="100"></div>
+<div class="f"><label for="reserve">비상금으로 남길 돈 <span class="u">만원</span></label><input type="number" inputmode="decimal" id="reserve" step="100"></div>
+<div class="f"><label for="income">월 실수령 <span class="u">만원</span></label><input type="number" inputmode="decimal" id="income" step="10"></div>
 </fieldset>
 <fieldset><legend>은행</legend>
 <div class="f"><label for="rate">은행 금리 %</label><input type="number" inputmode="decimal" id="rate" step="0.1"></div>
 </fieldset>
 <fieldset><legend>가족 무이자 차용 (한 분)</legend>
-<div class="f"><label for="fsFree">무이자 차용액</label><input type="number" inputmode="decimal" id="fsFree" step="100"><small id="limD"></small></div>
+<div class="f"><label for="fsFree">무이자 차용액 <span class="u">만원</span></label><input type="number" inputmode="decimal" id="fsFree" step="100"><small id="limD"></small></div>
 <div class="f"><label for="fsTerm">만기 (년)</label><input type="number" inputmode="decimal" id="fsTerm" step="1"><small>만기에 남은 돈은 집 팔아서 상환</small></div>
 <div class="f"><label for="fsRepay">매년 상환 비율 %</label><input type="number" inputmode="decimal" id="fsRepay" step="0.5"></div>
 </fieldset>
 <details class="set"><summary>부대비용 (견적 받으면 고치기)</summary>
-<div class="f"><label for="lawyer">법무사·등기</label><input type="number" inputmode="decimal" id="lawyer"></div>
-<div class="f"><label for="bond">국민주택채권 할인</label><input type="number" inputmode="decimal" id="bond"></div>
-<div class="f"><label for="move">이사비</label><input type="number" inputmode="decimal" id="move"></div>
-<div class="f"><label for="taxpro">세무사</label><input type="number" inputmode="decimal" id="taxpro"><small>모담 견적 33 (조달계획서 포함)</small></div>
-<div class="f"><label for="notary">차용증 확정일자·공증</label><input type="number" inputmode="decimal" id="notary"></div>
-<div class="f"><label for="floor">도배·바닥</label><input type="number" inputmode="decimal" id="floor"></div>
-<div class="f"><label for="appl">가전·가구</label><input type="number" inputmode="decimal" id="appl"></div>
+<div class="f"><label for="lawyer">법무사·등기 <span class="u">만원</span></label><input type="number" inputmode="decimal" id="lawyer"></div>
+<div class="f"><label for="bond">국민주택채권 할인 <span class="u">만원</span></label><input type="number" inputmode="decimal" id="bond"></div>
+<div class="f"><label for="move">이사비 <span class="u">만원</span></label><input type="number" inputmode="decimal" id="move"></div>
+<div class="f"><label for="taxpro">세무사 <span class="u">만원</span></label><input type="number" inputmode="decimal" id="taxpro"><small>모담 견적 33 (조달계획서 포함)</small></div>
+<div class="f"><label for="notary">차용증 확정일자·공증 <span class="u">만원</span></label><input type="number" inputmode="decimal" id="notary"></div>
+<div class="f"><label for="floor">도배·바닥 <span class="u">만원</span></label><input type="number" inputmode="decimal" id="floor"></div>
+<div class="f"><label for="appl">가전·가구 <span class="u">만원</span></label><input type="number" inputmode="decimal" id="appl"></div>
 <p class="hint">취득세·중개보수·은행 인지세는 자동 계산합니다.</p>
 </details>
 <p class="hint">고정값: 생애최초 예, 85㎡ 초과 아니오, 은행 30년, 대출 한도 매매가의 40%, 적정이자율 4.6%, 남은 증여 공제 1,200만.</p>

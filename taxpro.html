@@ -27,7 +27,7 @@ nav.top{position:sticky;top:0;z-index:10;background:var(--bg);display:flex;gap:4
 main{max-width:860px;padding:8px max(4vw,16px) 64px}
 h2{font-size:18px;margin:26px 0 8px;color:var(--ac)}
 .tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;position:sticky;top:61px;z-index:5;background:var(--bg);padding:8px 0;border-bottom:1px solid var(--line)}
-.tabs button{font:700 15px "IBM Plex Sans KR",sans-serif;padding:10px 6px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);min-height:46px;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tabs button{font:700 13px/1.3 "IBM Plex Sans KR",sans-serif;padding:8px 4px;white-space:normal!important;word-break:keep-all;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);min-height:46px;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tabs button[aria-selected=true]{background:var(--ac);border-color:var(--ac);color:light-dark(#fff,#04201d)}
 .tabs small{display:block;font:600 12px "IBM Plex Sans KR",sans-serif;opacity:.85;overflow:hidden;text-overflow:ellipsis}
 .pane[hidden]{display:none}h3{font-size:16px;margin:20px 0 6px}details.full{margin-top:26px;border:1px solid var(--line);border-radius:10px;padding:10px 12px}details.full>summary{font-weight:700;color:var(--ac);cursor:pointer;min-height:32px}
@@ -58,11 +58,13 @@ table.cmp td.n{font-family:"IBM Plex Mono",monospace;text-align:right;white-spac
 button.b{font:600 15px "IBM Plex Sans KR",sans-serif;padding:10px 16px;border-radius:8px;border:1px solid var(--ac);background:transparent;color:var(--ac);min-height:44px;cursor:pointer}
 button.solid{background:var(--ac);color:light-dark(#fff,#04201d)}
 #msg{color:var(--mute);font-size:14px}.note{color:var(--mute);font-size:14px;margin-top:14px}
-@media(max-width:600px){.card.info{grid-template-columns:minmax(0,1fr)}.srow{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.srow span{grid-column:1/-1}.q textarea{margin-left:0;width:100%}.pt{margin-left:0}}
+@media(max-width:600px){.card.info{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.card.info label:first-child,.card.info .wide{grid-column:1/-1}.srow{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.srow span{grid-column:1/-1}.q textarea{margin-left:0;width:100%}.pt{margin-left:0}}
 </style>
+<link rel="stylesheet" href="common.css">
+<style>.pane>h2{margin-top:32px}.card.info label{font-size:13px;color:var(--mute);display:grid;gap:4px}.tabs small{font-weight:600;opacity:.8}</style>
 </head>
 <body>
-<nav class="top"><a href="./">자금계산기</a><a href="schedule.html">일정표</a><a href="fund.html">자금조달계획서</a><a href="taxpro.html" aria-current="page">세무사 상담</a></nav>
+<nav class="top"><a href="./">계산기</a><a href="schedule.html">일정표</a><a href="fund.html">조달계획서</a><a href="taxpro.html" aria-current="page">세무사</a></nav>
 <header>
 <h1>세무사 상담 체크리스트</h1>
 <p>세무사마다 탭을 따로 두고 답을 적은 뒤, 비교 탭에서 나란히 봅니다. 질문은 그대로 읽으면 되게 썼고 <b>★</b>는 꼭 물어볼 질문입니다. 입력하면 바로 자동 저장되고, 클라우드 링크로 열면 로그인 없이 Firebase에도 저장돼서 다른 기기에서도 이어서 볼 수 있습니다.</p>
@@ -127,7 +129,7 @@ function pdone(k){let c=0;for(let i=1;i<=4;i++)if($('pc'+i+k).checked)c++;return
 function done(k){let c=0;for(let i=1;i<=QN;i++)if($('q'+i+'c'+k).checked)c++;return c}
 function upd(){
  for(const k of KS){const c=cost(k);$('sum'+k).textContent=c.tot.toLocaleString('ko-KR')+'만';$('sumd'+k).textContent='상담료 '+num('fee'+k)+' + '+(c.p?'패키지 '+c.p:'별도 비용 합계 '+c.sc);
-  $('t'+k).innerHTML=esc(nm(k))+'<small>'+esc(when(k))+' · 사전 '+pdone(k)+'/4</small>';$('pk'+k).textContent=nm(k)}
+  $('t'+k).innerHTML=esc(nm(k))+'<small>'+esc($('tm'+k).value||'')+' · '+pdone(k)+'/4</small>';$('pk'+k).textContent=nm(k)}
  const C={};for(const k of KS)C[k]=cost(k);const NC=KS.length+1;
  const row=(t,f,n)=>`<tr><th>${t}</th>${KS.map(k=>`<td${n?' class="n"':''}>${f(k)}</td>`).join('')}</tr>`,sv=id=>esc($(id).value||'-'),sec=t=>`<tr class="sec"><th colspan="${NC}">${t}</th></tr>`;
  let r=`<thead><tr><th></th>${KS.map(k=>`<th>${esc(nm(k))}</th>`).join('')}</tr></thead><tbody>`;
