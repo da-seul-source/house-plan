@@ -163,7 +163,7 @@ nav.top{position:sticky;top:0;z-index:10;background:var(--bg);display:flex;gap:4
 </div>
 
 <script id="calc">
-const DEF={price:58000,first:true,over85:false,jeonse:5000,cash:13000,reserve:500,taxCash:0,mom:20000,dad:20000,repay:5,unit:1000,rate:5.0,years:30,ltv:40,cap:60000,tenure:6000,tax:0,lawyer:100,bond:40,move:150,taxpro:30,notary:10,floor:0,appl:0,income:450,target:50,giftDed:1200,giftAuto:true,gift:10000,mode:'bank',mixGift:1200,fsLender:'mom',fsFree:20000,fsMkt:4.6,fsRate:0,fsITax:27.5};
+const DEF={price:58000,first:true,over85:false,jeonse:5000,cash:13000,reserve:500,taxCash:0,mom:20000,dad:20000,repay:5,unit:1000,rate:5.0,years:30,ltv:40,cap:60000,tenure:6000,tax:0,lawyer:100,bond:40,move:150,taxpro:30,notary:10,floor:0,appl:0,income:450,target:50,giftDed:1200,giftAuto:true,gift:10000,mode:'bank',mixGift:1200,fsLender:'mom',fsFree:21700,fsMkt:4.6,fsRate:0,fsITax:27.5};
 function pmt(P,ratePct,years){const n=Math.round(years*12),r=ratePct/100/12;if(P<=0||n<=0)return 0;return r===0?P/n:P*r/(1-Math.pow(1+r,-n))}
 function pv(M,ratePct,years){const n=Math.round(years*12),r=ratePct/100/12;if(M<=0||n<=0)return 0;return r===0?M*n:M*(1-Math.pow(1+r,-n))/r}
 function cumInt(P,ratePct,years,months){const n=Math.round(years*12),r=ratePct/100/12,m=pmt(P,ratePct,years);let b=P,s=0;for(let i=0;i<Math.min(months,n);i++){const it=b*r;s+=it;b-=m-it}return s}
