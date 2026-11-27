@@ -105,6 +105,7 @@ nav.top{position:sticky;top:0;z-index:10;background:var(--bg);display:flex;gap:4
 <div class="f"><label for="jeonse">지금 집 전세보증금</label><input type="number" id="jeonse" step="100"></div>
 <div class="f"><label for="cash">예금·주식 등</label><input type="number" id="cash" step="100"><small>가진 돈 전부</small></div>
 <div class="f"><label for="reserve">비상금으로 남길 돈</label><input type="number" id="reserve" step="100"><small>집에 안 넣고 남겨 둘 몫</small></div>
+<div class="f"><label for="taxCash">증여세 낼 현금 (따로 모아 둔 돈)</label><input type="number" id="taxCash" step="100"><small>위 내 돈과 별개. 증여세를 이 돈에서 먼저 냅니다</small></div>
 <p class="hint">취득세·중개보수 등 부대비용과 비상금을 먼저 빼고, 남은 돈을 매매대금에 넣습니다.</p>
 </fieldset>
 <fieldset><legend>가족 무이자 차용</legend>
@@ -154,7 +155,7 @@ nav.top{position:sticky;top:0;z-index:10;background:var(--bg);display:flex;gap:4
 </div>
 
 <script id="calc">
-const DEF={price:58000,first:true,over85:false,jeonse:5000,cash:13000,reserve:500,mom:20000,dad:20000,repay:5,unit:1000,rate:4.0,years:30,ltv:40,cap:60000,tenure:6000,tax:0,lawyer:100,bond:40,move:150,taxpro:30,notary:10,floor:0,appl:0,income:450,target:50,giftDed:1200,giftAuto:true,gift:10000,mode:'bank',mixGift:1200};
+const DEF={price:58000,first:true,over85:false,jeonse:5000,cash:13000,reserve:500,taxCash:0,mom:20000,dad:20000,repay:5,unit:1000,rate:4.0,years:30,ltv:40,cap:60000,tenure:6000,tax:0,lawyer:100,bond:40,move:150,taxpro:30,notary:10,floor:0,appl:0,income:450,target:50,giftDed:1200,giftAuto:true,gift:10000,mode:'bank',mixGift:1200};
 function pmt(P,ratePct,years){const n=Math.round(years*12),r=ratePct/100/12;if(P<=0||n<=0)return 0;return r===0?P/n:P*r/(1-Math.pow(1+r,-n))}
 function pv(M,ratePct,years){const n=Math.round(years*12),r=ratePct/100/12;if(M<=0||n<=0)return 0;return r===0?M*n:M*(1-Math.pow(1+r,-n))/r}
 function cumInt(P,ratePct,years,months){const n=Math.round(years*12),r=ratePct/100/12,m=pmt(P,ratePct,years);let b=P,s=0;for(let i=0;i<Math.min(months,n);i++){const it=b*r;s+=it;b-=m-it}return s}
@@ -170,10 +171,10 @@ function calc(I){
  R.direct=I.lawyer+I.bond+I.move+I.taxpro+I.notary+I.floor+I.appl;
  const noStamp=R.acq+R.edu+R.agri+R.relief+R.broker+R.vat+R.direct;
  const need=Math.max(0,I.price-fam),mode=I.mode||'bank';R.mode=mode;
- const core=G=>{const T=G>0?giftTax(G,I.giftDed):0,gUse=Math.min(G,need);
+ const core=G=>{const T0=G>0?giftTax(G,I.giftDed):0,T=Math.max(0,T0-I.taxCash),gUse=Math.min(G,need);
   const sl=Math.max(0,need-gUse-Math.max(0,I.jeonse+I.cash-noStamp-T-I.reserve)),st=mode==='gift'?0:stampTax(sl);
   const costs=noStamp+T+st,raw=I.jeonse+I.cash-costs-I.reserve,left=Math.max(0,raw),canPut=Math.min(left,need-gUse);
-  return{T,gUse,sl,st,costs,raw,left,canPut,extra:left-canPut,short:Math.max(0,need-gUse-canPut)}};
+  return{T:T0,Tc:T,gUse,sl,st,costs,raw,left,canPut,extra:left-canPut,short:Math.max(0,need-gUse-canPut)}};
  let G=mode==='mix'?Math.max(0,I.mixGift):0,c=core(G);
  if(mode==='gift'){for(let i=0;i<60;i++){G=c.short+c.gUse;c=core(G)}G=c.gUse+c.short;c=core(G)}
  R.gift=G;R.giftTx=c.T;R.giftUse=c.gUse;R.stampLoan=c.sl;R.stamp=c.st;R.costs=c.costs;R.lack=c.raw<0?-c.raw:0;R.left=c.left;
@@ -192,12 +193,13 @@ function calc(I){
  R.cmpLoan=mode==='bank'?R.loan:calc(Object.assign({},I,{mode:'bank'})).cmpLoan;
  R.giftAmt=I.giftAuto?Math.max(0,R.cmpLoan):I.gift;
  const L=R.cmpLoan,iA=cumInt(L,I.rate,I.years,1e9),mA=pmt(L,I.rate,I.years);R.bankOnly={loan:L,m:mA,iAll:iA};
- const g=a=>{const tax=giftTax(a,I.giftDed),lb=Math.max(0,L-a+tax),sv=m=>cumInt(L,I.rate,I.years,m)-cumInt(lb,I.rate,I.years,m)-tax,n=Math.round(I.years*12);
+ const g=a=>{const tax=giftTax(a,I.giftDed),lb=Math.max(0,L-a+Math.max(0,tax-I.taxCash)),sv=m=>cumInt(L,I.rate,I.years,m)-cumInt(lb,I.rate,I.years,m)-tax,n=Math.round(I.years*12);
   let be='없음';if(tax<=0)be='처음부터';else for(let i=1;i<=n;i++){if(sv(i)>0){be=i<12?i+'개월':(i/12).toFixed(1)+'년';break}}
   const iB=cumInt(lb,I.rate,I.years,1e9);return{amt:a,tax,loanB:lb,mB:pmt(lb,I.rate,I.years),mDown:mA-pmt(lb,I.rate,I.years),iB,costB:iB+tax,s5:sv(60),s10:sv(120),sAll:sv(1e9),be,over:a>L+0.5}};
  R.g=g(R.giftAmt);
+ let z=L;for(let i=0;i<60;i++)z=L+Math.max(0,giftTax(z,I.giftDed)-I.taxCash);R.zero=L>0.5?g(Math.ceil(z)):null;
  const am=[I.giftDed,5000,L*.25,L*.5,L*.75,L].map(x=>Math.round(x)).filter(x=>x>0&&L>0.5);
- R.gRows=[...new Set(am)].map(g);if(R.giftAmt>0&&!R.gRows.some(x=>x.amt===Math.round(R.giftAmt)))R.gRows.push(R.g);R.gRows.sort((a,b)=>a.amt-b.amt);
+ R.gRows=[...new Set(am)].map(g);if(R.giftAmt>0&&!R.gRows.some(x=>x.amt===Math.round(R.giftAmt)))R.gRows.push(R.g);if(R.zero&&!R.gRows.some(x=>x.amt===R.zero.amt))R.gRows.push(R.zero);R.gRows.sort((a,b)=>a.amt-b.amt);
  R.plan=[['자기자금·금융기관 예금 등','예금·주식 등',R.putC,'잔고증명서, 주식 거래내역서'],['자기자금·부동산 처분대금 등','지금 집 전세보증금',R.putJ,'지금 집 임대차계약서'],['자기자금·증여·상속','부모님 증여 (증여세 신고)',R.giftUse,'증여세 신고서, 부모님 계좌 송금내역'],['차입금·금융기관 대출','주택담보대출',R.loan,'대출 신청서 또는 승인서'],['차입금·그 밖의 차입금','엄마 무이자 차용',I.mom,'차용증, 엄마 계좌 송금내역'],['차입금·그 밖의 차입금','아빠 무이자 차용',I.dad,'차용증, 아빠 계좌 송금내역']];
  R.planTot=R.plan.reduce((s,x)=>s+x[2],0);R.planDiff=R.planTot-I.price;
  const W=[],won=v=>fmtE(v);
@@ -228,6 +230,8 @@ const nums=ids.filter(k=>typeof DEF[k]==='number');
 function load(){let s={};try{s=JSON.parse(localStorage.getItem(KEY)||'{}')||{}}catch(e){}for(const k of ids){const v=k in s?s[k]:DEF[k],el=$(k);if(el.type==='checkbox')el.checked=!!v;else el.value=v}$('repayR').value=$('repay').value}
 function read(){const I={};for(const k of ids){const el=$(k);I[k]=el.type==='checkbox'?el.checked:typeof DEF[k]==='string'?(el.value||DEF[k]):(parseFloat(el.value)||0)}return I}
 function save(I){try{localStorage.setItem(KEY,JSON.stringify(I))}catch(e){}}
+const TK=KEY+'-t',touch=()=>{try{localStorage.setItem(TK,Date.now())}catch(e){}if(window.CPush)CPush()};
+window.CALC={get:()=>({s:JSON.stringify(read()),t:+(localStorage.getItem(TK)||0)}),apply(o){try{localStorage.setItem(KEY,o.s);localStorage.setItem(TK,o.t)}catch(e){}load();render()}};
 const n0=v=>`<span class="num">${fmt(v)}</span>`;
 const B=(c,t)=>`<span class="badge ${c}">${t}</span>`;
 const row=(cells,cls='')=>`<tr class="${cls}">${cells.map(c=>Array.isArray(c)?`<td class="n">${c[0]}</td>`:`<td>${c}</td>`).join('')}</tr>`;
@@ -342,10 +346,11 @@ ${row(['3년차부터',[fmtM(R.totM)],['0.0'],[fmtM(R.burden3)],[(R.burden3/inc*
  <div class="card"><div class="l">아끼는 돈 (${y}년 다 갚을 때)</div><div class="big">${fmt(R.g.sAll)}만</div><div class="s">5년 ${fmt(R.g.s5)} · 10년 ${fmt(R.g.s10)}</div></div>
  <div class="card hi"><div class="l">본전 시점</div><div class="big">${R.g.be}</div><div class="s">이보다 오래 대출을 갖고 있으면 증여가 쌉니다</div></div>
 </div>
-${R.gRows.length?`<div style="margin-top:12px"><table class="stack gt"><thead><tr><th class="n">증여 금액</th><th class="n">증여세</th><th class="n">증여 후 대출</th><th class="n">매달 줄어드는 원리금</th><th class="n">아끼는 돈 5년</th><th class="n">10년</th><th class="n">전체 기간</th><th class="n">본전 시점</th><th class="n">더 이득</th></tr></thead><tbody>
-${R.gRows.map(x=>row([[fmtE(x.amt)+(x.over?'<br>'+B('y','대출보다 많음'):'')],[fmt(x.tax)],[fmt(x.loanB)],[fmtM(x.mDown)],[fmt(x.s5)],[fmt(x.s10)],[fmt(x.sAll)],[x.be],[x.sAll>0.5?B('g','증여 '+fmt(x.sAll)+'만'):B('y','은행 '+fmt(-x.sAll)+'만')]],x.amt===Math.round(R.giftAmt)?'em':'')).join('')}
+${R.gRows.length?`<div style="margin-top:12px"><table class="stack gt"><thead><tr><th class="n">증여 금액</th><th class="n">증여세</th><th class="n">증여 후 남는 대출</th><th class="n">매달 줄어드는 원리금</th><th class="n">아끼는 돈 5년</th><th class="n">10년</th><th class="n">전체 기간</th><th class="n">본전 시점</th><th class="n">더 이득</th></tr></thead><tbody>
+${R.gRows.map(x=>row([[fmtE(x.amt)+(R.zero&&x.amt===R.zero.amt?'<br>'+B('g','대출 0'):x.over?'<br>'+B('y','대출보다 많음'):'')],[fmt(x.tax)],[fmt(x.loanB)],[fmtM(x.mDown)],[fmt(x.s5)],[fmt(x.s10)],[fmt(x.sAll)],[x.be],[x.sAll>0.5?B('g','증여 '+fmt(x.sAll)+'만'):B('y','은행 '+fmt(-x.sAll)+'만')]],x.amt===Math.round(R.giftAmt)?'em':'')).join('')}
 </tbody></table></div>`:'<p class="note">은행 대출이 없어서 비교할 금액이 없습니다.</p>'}
-<p class="note">증여세는 현금으로 내야 해서 그만큼 대출을 더 받는 것으로 계산했습니다 (증여 후 대출 = 대출 − 증여 + 증여세). 아끼는 돈 = 은행만일 때 이자 − 증여 섞을 때 이자 − 증여세. 표의 행은 공제 남은 금액, 5,000만, 대출의 25·50·75·100%입니다. 대출을 본전 시점보다 일찍 다 갚을 거면 은행이, 아니면 증여가 쌉니다. 증여는 부모님 돈이 돌아오지 않습니다. 10년 안의 이전 증여 합산, 혼인 공제 등은 세무사에게 확인하세요.</p>
+${R.zero?`<p class="sent">은행 대출을 0으로 만들려면 증여를 <b>${fmtE(R.zero.amt)}</b> 받으면 됩니다. 증여세 ${fmt(R.zero.tax)}만${I.taxCash>=R.zero.tax?'은 따로 모아 둔 현금으로 냅니다.':I.taxCash>0?` 중 ${fmt(I.taxCash)}만은 따로 모아 둔 현금으로, 나머지는 증여받은 돈에서 냅니다.`:'은 증여받은 돈에서 냅니다.'}</p>`:''}
+<p class="note">증여세는 내 돈에서 먼저 냅니다. 내 돈이 이미 집값에 다 들어가 있으면 세금만큼 집값에 구멍이 생겨서, 증여를 더 받거나 대출로 메워야 합니다. 이 표는 모자란 만큼을 대출로 메운다고 보고 계산했습니다 (남는 대출 = 대출 − 증여 + 증여세 − 세금 낼 현금). '대출 0' 줄이 세금까지 포함해서 증여로 다 채우는 금액입니다. 아끼는 돈 = 은행만일 때 이자 − 증여 섞을 때 이자 − 증여세. 표의 행은 공제 남은 금액, 5,000만, 대출의 25·50·75·100%입니다. 대출을 본전 시점보다 일찍 다 갚을 거면 은행이, 아니면 증여가 쌉니다. 증여는 부모님 돈이 돌아오지 않습니다. 10년 안의 이전 증여 합산, 혼인 공제 등은 세무사에게 확인하세요.</p>
 </section>
 
 <section><h2>예산으로 볼 수 있는 집값</h2>
@@ -353,13 +358,38 @@ ${R.gRows.map(x=>row([[fmtE(x.amt)+(x.over?'<br>'+B('y','대출보다 많음'):'
 <p class="note">구성: 남은 내 돈 ${fmtE(R.left)} + 가족 차용 ${fmtE(R.fam)} + 은행 ${fmtE(R.afford)}</p>
 </section>
 
-<footer>계산은 참고용 대략치입니다. 대출 한도와 규제는 자주 바뀌니 계약 전에 은행·중개사무소·세무사에게 확인하세요. 입력값은 이 브라우저에만 저장됩니다.</footer>`}
+<footer>계산은 참고용 대략치입니다. 대출 한도와 규제는 자주 바뀌니 계약 전에 은행·중개사무소·세무사에게 확인하세요. 입력값은 이 기기에 저장되고, 클라우드 링크(#k=…)로 열면 Firebase에도 저장됩니다.</footer>`}
 load();render();
-$('form').addEventListener('input',e=>{if(e.target.id==='repayR')$('repay').value=e.target.value;if(e.target.id==='repay')$('repayR').value=e.target.value;render()});
-$('form').addEventListener('change',render);
-for(const b of document.querySelectorAll('.seg button'))b.addEventListener('click',()=>{$('mode').value=b.dataset.m;render()});
-$('reset').addEventListener('click',()=>{try{localStorage.removeItem(KEY)}catch(e){}load();render()});
+$('form').addEventListener('input',e=>{if(e.target.id==='repayR')$('repay').value=e.target.value;if(e.target.id==='repay')$('repayR').value=e.target.value;render();touch()});
+$('form').addEventListener('change',()=>{render();touch()});
+for(const b of document.querySelectorAll('.seg button'))b.addEventListener('click',()=>{$('mode').value=b.dataset.m;render();touch()});
+$('reset').addEventListener('click',()=>{try{localStorage.removeItem(KEY)}catch(e){}load();render();touch()});
 }
 </script>
+<div id="csync" style="position:fixed;left:0;right:0;bottom:0;z-index:20;padding:6px max(4vw,16px) calc(6px + env(safe-area-inset-bottom));background:var(--bg);border-top:1px solid var(--line);font-size:13px;color:var(--mute)">불러오는 중…</div>
+<style>body{padding-bottom:52px}#csync[data-s=ok]{color:var(--ac)!important}#csync[data-s=bad]{color:#d9534f!important}</style>
+<script type="module">
+const V='https://www.gstatic.com/firebasejs/11.10.0/',KK='anyang-taxpro-pad',st=document.getElementById('csync');
+const say=(t,c)=>{st.textContent=t;st.dataset.s=c||''},hm=()=>new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
+let key=(location.hash.match(/k=([0-9a-f]{32,})/)||[])[1];
+try{if(key)localStorage.setItem(KK,key);else key=localStorage.getItem(KK)}catch(x){}
+if(!key)say('이 기기에만 저장 중. 클라우드 링크(#k=…)로 열면 Firebase에도 저장됩니다');
+else try{
+ if(!location.hash.includes(key))history.replaceState(null,'','#k='+key);
+ const [{initializeApp},F]=await Promise.all([import(V+'firebase-app.js'),import(V+'firebase-firestore.js')]);
+ const app=initializeApp({apiKey:"AIzaSyBrs4EjzSSICFxlWgazb_zyahEjiaVsRGg",authDomain:"house-plan-f67a7.firebaseapp.com",projectId:"house-plan-f67a7",storageBucket:"house-plan-f67a7.firebasestorage.app",messagingSenderId:"897737312298",appId:"1:897737312298:web:9d024c9495f10699465b53"});
+ const ref=F.doc(F.getFirestore(app),'pads',key+'c');let timer=null,busy=0;
+ const err=e=>say('클라우드 저장 실패, 이 기기에는 저장됨 ('+(e&&e.code||e)+')','bad');
+ async function push(){clearTimeout(timer);busy++;say('저장 중…');try{await F.setDoc(ref,window.CALC.get());if(!--busy)say('저장됨 '+hm()+' · 클라우드','ok')}catch(e){busy--;err(e)}}
+ window.CPush=()=>{say(navigator.onLine?'저장 중…':'인터넷 끊김, 이 기기에만 저장됨');clearTimeout(timer);timer=setTimeout(push,700)};
+ addEventListener('online',()=>push());
+ say('클라우드 불러오는 중…');
+ const d=await F.getDoc(ref),L=window.CALC.get();
+ if(d.exists()&&(d.data().t||0)>L.t){window.CALC.apply(d.data());say('클라우드에서 불러옴 '+hm(),'ok')}
+ else await push();
+ F.onSnapshot(ref,x=>{if(x.metadata.hasPendingWrites||!x.exists())return;if((x.data().t||0)>window.CALC.get().t){window.CALC.apply(x.data());say('다른 기기 값 반영 '+hm(),'ok')}},()=>{});
+}catch(e){say('클라우드 연결 실패 (인터넷 확인). 이 기기에는 저장됩니다','bad')}
+</script>
 </body>
+
 </html>
