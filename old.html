@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0c1615" media="(prefers-color-scheme: dark)">
+<title>안양 집 자금계산기</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans+KR:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+/* VOICE: calm, exact, like a bank's worksheet a careful person keeps.
+   IDEA: a household ledger: inputs on the left, the ledger reconciles on the right.
+   PICTURE: the four headline figures and the monthly salary bar, live.
+   COLOUR and TYPE: white / deep night, one calm teal accent; Plex Sans KR + Plex Mono numbers.
+   LAYOUT: 380px input panel, results column; one column under 900px. */
+:root{color-scheme:light dark;
+--bg:light-dark(#ffffff,#0c1615);--panel:light-dark(#f2f7f6,#122220);--ink:light-dark(#14201f,#e3eeec);--mute:light-dark(#5b6b69,#93a6a3);
+--line:light-dark(#d8e3e1,#24403c);--ac:light-dark(#0f766e,#3cc2b3);--acs:light-dark(#d7efec,#173a36);
+--ok:light-dark(#1d7a3e,#56c983);--okb:light-dark(#e3f4e8,#14301f);--warn:light-dark(#8a6200,#e6b84a);--warnb:light-dark(#fdf3d6,#33290f);
+--bad:light-dark(#b42318,#f07a6e);--badb:light-dark(#fde6e3,#3a1714);
+--c1:light-dark(#0f766e,#3cc2b3);--c2:light-dark(#7fb8b1,#2c7a71);--c3:light-dark(#e3ecea,#1c2f2c)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 "IBM Plex Sans KR",system-ui,sans-serif;overflow-x:clip}
+.num,td.n,input[type=number],.big{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+header{padding:28px max(4vw,16px) 18px;border-bottom:1px solid var(--line)}
+h1{margin:0;font-size:clamp(24px,3.4vw,34px);line-height:1.1;text-wrap:balance}
+header p{margin:8px 0 0;color:var(--mute);max-width:70ch}
+.wrap{display:grid;grid-template-columns:380px minmax(0,1fr);gap:28px;padding:24px max(4vw,16px) 48px;max-width:1440px}
+@media(max-width:900px){.wrap{grid-template-columns:minmax(0,1fr)}}
+aside{background:var(--panel);border-radius:12px;padding:18px;align-self:start}
+@media(min-width:901px){aside{position:sticky;top:76px;max-height:calc(100vh - 88px);overflow:auto}}
+fieldset{border:0;border-top:1px solid var(--line);margin:0;padding:14px 0 10px}
+fieldset:first-of-type{border-top:0;padding-top:0}
+legend{font-weight:700;color:var(--ac);padding:0;margin-bottom:6px}
+.f{display:grid;grid-template-columns:minmax(0,1fr) 128px;gap:4px 10px;align-items:center;margin:8px 0}
+.f label{font-size:14px}.f small,.hint{grid-column:1/-1;color:var(--mute);font-size:13px;line-height:1.4}
+input[type=number],select{width:100%;font-size:16px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);text-align:right;min-height:40px}
+input:disabled{opacity:.6}
+select{text-align:left;font-family:inherit}
+input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+.ck{display:flex;gap:8px;align-items:center;margin:6px 0;font-size:15px;min-height:32px}.ck input{width:20px;height:20px;accent-color:var(--ac)}
+input[type=range]{width:100%;accent-color:var(--ac);height:28px}
+.ticks{display:flex;justify-content:space-between;font-size:13px;color:var(--mute)}
+.auto{grid-column:1/-1;background:var(--acs);border-radius:8px;padding:8px 10px;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.auto b{font-family:"IBM Plex Mono",monospace}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:4px}
+.seg button{margin:0;border:0;min-height:40px;color:var(--ink);padding:6px}.seg button[aria-pressed=true]{background:var(--ac);color:light-dark(#fff,#04201d);font-weight:700}
+button{font:inherit;font-size:15px;padding:10px 14px;border-radius:8px;border:1px solid var(--ac);background:transparent;color:var(--ac);cursor:pointer;min-height:44px;width:100%;margin-top:10px}
+main{display:grid;gap:30px;align-content:start}
+section h2{font-size:19px;margin:0 0 10px;line-height:1.25}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.card{border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.card .l{font-size:14px;color:var(--mute)}.card .big{font-size:clamp(20px,2.3vw,26px);font-weight:600;line-height:1.2;margin:4px 0;white-space:nowrap}
+.card .s{font-size:13px;color:var(--mute)}
+.card.hi{background:var(--ac);border-color:var(--ac);color:#fff}.card.hi .l,.card.hi .s{color:#e6f7f5}
+:root[data-theme=dark] .card.hi,.card.hi{color:light-dark(#fff,#04201d)}
+.bar{display:flex;height:30px;border-radius:8px;overflow:hidden;margin:14px 0 6px;background:var(--c3)}
+.bar div{height:100%}.leg{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--mute)}
+.leg i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.warns{list-style:none;padding:0;margin:12px 0 0;display:grid;gap:6px}
+.warns li{padding:8px 12px;border-radius:8px;font-size:14px;border-left:4px solid}
+.g{background:var(--okb);border-color:var(--ok)!important;color:var(--ok)}.y{background:var(--warnb);border-color:var(--warn)!important;color:var(--warn)}.r{background:var(--badb);border-color:var(--bad)!important;color:var(--bad)}
+.badge{display:inline-block;font-size:13px;font-weight:600;padding:2px 8px;border-radius:99px;white-space:nowrap;font-family:"IBM Plex Sans KR",sans-serif}
+table{width:100%;border-collapse:collapse;font-size:14px}
+.gt th{white-space:normal}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-size:13px;color:var(--mute);font-weight:600}
+td.n,th.n{text-align:right;white-space:nowrap}
+tr.tot td{font-weight:700;border-top:2px solid var(--ink);border-bottom:0}
+tr.em td{background:var(--acs)}
+.note{color:var(--mute);font-size:14px;margin:8px 0 0}
+.sent{font-size:16px;line-height:1.6;max-width:70ch}.sent b{font-family:"IBM Plex Mono",monospace;color:var(--ac)}
+footer{color:var(--mute);font-size:14px;border-top:1px solid var(--line);padding-top:14px}
+pre,.scroll{overflow-x:auto}
+nav.top{position:sticky;top:0;z-index:10;background:var(--bg);display:flex;gap:4px;padding:8px max(4vw,16px);border-bottom:1px solid var(--line);flex-wrap:wrap}nav.top a{padding:10px 12px;font-size:15px;border-radius:8px;color:var(--ink);text-decoration:none;font-weight:600;min-height:44px}nav.top a[aria-current=page]{background:var(--ac);color:light-dark(#fff,#04201d)}nav.top a:not([aria-current]):hover{background:var(--acs)}
+@media(max-width:600px){table{font-size:13px}}
+@media(max-width:900px){.stack thead{display:none}.stack tr{display:grid;padding-block:10px;border-bottom:1px solid var(--line)}.stack td{display:flow-root;border:0;padding:3px 0;padding-inline-start:8em;text-align:start}.stack td.n{text-align:right}.stack td::before{content:attr(data-l);float:inline-start;width:7.5em;margin-inline-start:-8em;white-space:normal;color:var(--mute);text-align:left}.stack td:empty{display:none}}
+</style>
+<script>new MutationObserver(()=>{for(const c of document.querySelectorAll('.stack td:not([data-l])')){let i=0,p=c;while(p=p.previousElementSibling)i+=p.colSpan;c.dataset.l=c.closest('table').rows[0].cells[i]?.textContent||''}}).observe(document,{childList:true,subtree:true})</script>
+</head>
+<body>
+<nav class="top"><a href="./">자금계산기</a><a href="schedule.html">일정표</a><a href="fund.html">자금조달계획서</a><a href="taxpro.html">세무사 상담</a></nav>
+<header>
+<h1>안양 집 자금계산기 (예전 상세판)</h1>
+<p>숫자를 바꾸면 대출액, 매달 부담, 자금조달계획서 금액이 바로 다시 계산됩니다. 단위는 만원입니다.</p>
+</header>
+<div class="wrap">
+<aside>
+<form id="form" onsubmit="return false">
+<fieldset><legend>돈 마련 방식</legend>
+<input type="hidden" id="mode">
+<div class="seg" role="group" aria-label="돈 마련 방식"><button type="button" data-m="bank">은행 대출</button><button type="button" data-m="gift">증여 받기</button><button type="button" data-m="mix">섞기</button></div>
+<p class="hint" id="modeDesc"></p>
+<div class="f" id="mixBox"><label for="mixGift">섞을 때 증여받을 금액</label><input type="number" id="mixGift" step="100"><small>나머지는 은행 대출. 공제 남은 금액까지는 증여세 0</small></div>
+</fieldset>
+<fieldset><legend>집</legend>
+<div class="f"><label for="price">매매가</label><input type="number" id="price" step="100"></div>
+<label class="ck"><input type="checkbox" id="first"> 생애최초 주택 구입</label>
+<label class="ck"><input type="checkbox" id="over85"> 전용 85㎡ 초과</label>
+</fieldset>
+<fieldset><legend>내 돈</legend>
+<div class="f"><label for="jeonse">지금 집 전세보증금</label><input type="number" id="jeonse" step="100"></div>
+<div class="f"><label for="cash">예금·주식 등</label><input type="number" id="cash" step="100"><small>가진 돈 전부</small></div>
+<div class="f"><label for="reserve">비상금으로 남길 돈</label><input type="number" id="reserve" step="100"><small>집에 안 넣고 남겨 둘 몫</small></div>
+<div class="f"><label for="taxCash">증여세 낼 현금 (따로 모아 둔 돈)</label><input type="number" id="taxCash" step="100"><small>위 내 돈과 별개. 증여세를 이 돈에서 먼저 냅니다</small></div>
+<p class="hint">취득세·중개보수 등 부대비용과 비상금을 먼저 빼고, 남은 돈을 매매대금에 넣습니다.</p>
+</fieldset>
+<fieldset><legend>가족 무이자 차용</legend>
+<div class="f"><label for="mom">엄마</label><input type="number" id="mom" step="100"></div>
+<div class="f"><label for="dad">아빠</label><input type="number" id="dad" step="100"></div>
+<div class="f"><label for="repay">원금 상환 %/년</label><input type="number" id="repay" step="0.5" min="0"><small id="repayDesc"></small></div>
+<input type="range" id="repayR" min="1" max="10" step="0.5" aria-label="원금 상환 %/년">
+<div class="ticks"><span>1%(100년)</span><span>5%(20년)</span><span>10%(10년)</span></div>
+</fieldset>
+<fieldset><legend>가족 자금 구조 비교 (1명 차용)</legend>
+<div class="f"><label for="fsLender">무이자로 빌려줄 분</label><select id="fsLender"><option value="mom">엄마</option><option value="dad">아빠</option></select></div>
+<div class="f"><label for="fsFree">무이자 차용액</label><input type="number" id="fsFree" step="100"><small id="fsLim"></small></div>
+<div class="f"><label for="fsMkt">적정이자율 %</label><input type="number" id="fsMkt" step="0.1"><small>확인 필요: 매년 바뀔 수 있음</small></div>
+<div class="f"><label for="fsRate">B안 차용 이자율 %</label><input type="number" id="fsRate" step="0.1" placeholder="자동"><small id="fsRateD"></small></div>
+<div class="f"><label for="fsTerm">차용 만기 (년)</label><input type="number" id="fsTerm" step="1" min="0"><small id="fsTermD"></small></div>
+<div class="f"><label for="fsSrc">만기에 갚을 돈</label><select id="fsSrc"><option value="sell">집 팔아서 갚기</option><option value="save">월급으로 모으기</option></select><small>집 매도 계획이 상환능력으로 인정되는지 세무사 확인 필요</small></div>
+<div class="f"><label for="fsITax">부모님 이자소득세율 %</label><input type="number" id="fsITax" step="0.5"><small>비영업대금 27.5% 추정, 세무사 확인 필요</small></div>
+<p class="hint">위 "가족 무이자 차용"과 별개로, 한 분에게만 빌리는 구조를 아래 "가족 자금 구조 비교"에서 A(증여)/B(추가 차용+이자)/②(증여 10% 구간+은행)/D(은행)로 나란히 봅니다.</p>
+</fieldset>
+<fieldset><legend>은행 주택담보대출</legend>
+<div class="f"><div class="auto"><span>대출 받을 금액</span><b id="loanAuto"></b></div><small>자동: 매매가 − 가족 차용 − 남은 내 돈, 단위로 올림</small></div>
+<div class="f"><label for="unit">대출 금액 단위</label><select id="unit"><option value="1000">1천만원</option><option value="5000">5천만원</option><option value="0">올림 안 함</option></select><small>올리고 남는 돈은 비상금으로</small></div>
+<div class="f"><label for="rate">금리 %</label><input type="number" id="rate" step="0.05"></div>
+<div class="f"><label for="years">기간 년</label><input type="number" id="years" step="1" min="1"></div>
+<div class="f"><label for="ltv">집값 대비 대출 비율 한도 %</label><input type="number" id="ltv" step="5"><small>규제지역 기준, 은행 확인</small></div>
+<div class="f"><label for="cap">대출 금액 상한</label><input type="number" id="cap" step="1000"><small>수도권 상한, 은행 확인</small></div>
+</fieldset>
+<fieldset><legend>회사 이자지원</legend>
+<div class="f"><label for="tenure">근속연수</label><select id="tenure"><option value="0">1년 미만 (지원 없음)</option><option value="6000">1년~5년 미만 (한도 6,000)</option><option value="9000">5년 이상 (한도 9,000)</option></select></div>
+<div class="f"><label for="tax">세금 떼는 비율 %</label><input type="number" id="tax" step="1" min="0" max="100"><small>급여로 받아 과세될 경우, 인사팀 확인</small></div>
+<p class="hint">인정 원금(6천/9천만원 한도) × 최초 대출금리 × 50%, 최장 2년(24회). 은행 대출만 해당하고 가족 차용은 빠집니다.</p>
+</fieldset>
+<fieldset><legend>부대비용 (견적 받으면 고치기)</legend>
+<div class="f"><label for="lawyer">법무사·등기 수수료</label><input type="number" id="lawyer"></div>
+<div class="f"><label for="bond">국민주택채권 할인비용</label><input type="number" id="bond"><small>등기 때 사서 바로 팖, 법무사 견적에 포함</small></div>
+<div class="f"><label for="move">이사비</label><input type="number" id="move"></div>
+<div class="f"><label for="taxpro">세무사 상담</label><input type="number" id="taxpro"></div>
+<div class="f"><label for="notary">차용증 확정일자·공증</label><input type="number" id="notary"><small>2부 기준</small></div>
+<div class="f"><label for="floor">도배·바닥</label><input type="number" id="floor" step="50"></div>
+<div class="f"><label for="appl">가전·가구</label><input type="number" id="appl" step="50"></div>
+<p class="hint">취득세·중개보수·대출 인지세는 자동 계산합니다. 여기 넣은 돈도 내 돈에서 먼저 뺍니다.</p>
+</fieldset>
+<fieldset><legend>소득</legend>
+<div class="f"><label for="income">월 실수령</label><input type="number" id="income" step="10"></div>
+<div class="f"><label for="target">집에 쓸 비율 목표 %</label><input type="number" id="target" step="1"></div>
+</fieldset>
+<fieldset><legend>증여 vs 은행 비교</legend>
+<div class="f"><label for="giftDed">증여 공제 남은 금액</label><input type="number" id="giftDed" step="100"><small>엄마·아빠 합쳐 10년 5천만원</small></div>
+<label class="ck"><input type="checkbox" id="giftAuto"> 지금 은행 대출만큼 증여받기</label>
+<div class="f"><label for="gift">비교해 볼 증여 금액</label><input type="number" id="gift" step="1000"><small>은행 대출 대신 받는 돈. 위 체크를 켜면 대출 금액을 따라갑니다</small></div>
+<p class="hint">비교만 합니다. 위 대출 계산과 자금조달계획서에는 넣지 않습니다.</p>
+</fieldset>
+<button type="button" id="reset">처음 값으로 되돌리기</button>
+</form>
+</aside>
+<main id="out"></main>
+</div>
+
+<script id="calc">
+const DEF={price:58000,first:true,over85:false,jeonse:5000,cash:13000,reserve:500,taxCash:0,mom:20000,dad:20000,repay:5,unit:1000,rate:5.0,years:30,ltv:40,cap:60000,tenure:6000,tax:0,lawyer:100,bond:40,move:150,taxpro:30,notary:10,floor:0,appl:0,income:450,target:50,giftDed:1200,giftAuto:true,gift:10000,mode:'bank',mixGift:1200,fsLender:'mom',fsFree:21700,fsMkt:4.6,fsRate:0,fsITax:27.5,fsTerm:5,fsSrc:'sell'};
+function pmt(P,ratePct,years){const n=Math.round(years*12),r=ratePct/100/12;if(P<=0||n<=0)return 0;return r===0?P/n:P*r/(1-Math.pow(1+r,-n))}
+function pv(M,ratePct,years){const n=Math.round(years*12),r=ratePct/100/12;if(M<=0||n<=0)return 0;return r===0?M*n:M*(1-Math.pow(1+r,-n))/r}
+function cumInt(P,ratePct,years,months){const n=Math.round(years*12),r=ratePct/100/12,m=pmt(P,ratePct,years);let b=P,s=0;for(let i=0;i<Math.min(months,n);i++){const it=b*r;s+=it;b-=m-it}return s}
+function breakEven(P,ratePct,years,tax){if(tax<=0)return '처음부터';const n=Math.round(years*12),r=ratePct/100/12,m=pmt(P,ratePct,years);let b=P,s=0;for(let i=1;i<=n;i++){const it=b*r;s+=it;b-=m-it;if(s>tax)return i<12?i+'개월':(i/12).toFixed(1)+'년'}return '없음'}
+function giftTax(amt,ded){const t=Math.max(0,amt-ded);let x;if(t<=10000)x=t*.1;else if(t<=50000)x=t*.2-1000;else if(t<=100000)x=t*.3-6000;else if(t<=300000)x=t*.4-16000;else x=t*.5-46000;return Math.max(0,x)*0.97}
+function acqRate(p){if(p<=60000)return 1;if(p<=90000)return Math.round((p/10000*2/3-3)*100)/100;return 3}
+function stampTax(l){return l<=5000?0:l<=10000?3.5:l<=100000?7.5:17.5}
+function calc(I){
+ const fam=I.mom+I.dad,R={I,fam};
+ R.acqRate=acqRate(I.price);R.acq=I.price*R.acqRate/100;R.edu=R.acq*.1;R.agri=I.over85?I.price*.002:0;
+ R.relief=(I.first&&I.price<=120000)?-Math.min(200,R.acq):0;
+ R.brokerRate=I.price<90000?.4:.5;R.broker=I.price*R.brokerRate/100;R.vat=R.broker*.1;
+ R.direct=I.lawyer+I.bond+I.move+I.taxpro+I.notary+I.floor+I.appl;
+ const noStamp=R.acq+R.edu+R.agri+R.relief+R.broker+R.vat+R.direct;
+ const need=Math.max(0,I.price-fam),mode=I.mode||'bank';R.mode=mode;R.noStamp=noStamp;
+ const core=G=>{const T0=G>0?giftTax(G,I.giftDed):0,T=Math.max(0,T0-I.taxCash),gUse=Math.min(G,need);
+  const sl=Math.max(0,need-gUse-Math.max(0,I.jeonse+I.cash-noStamp-T-I.reserve)),st=mode==='gift'?0:stampTax(sl);
+  const costs=noStamp+T+st,raw=I.jeonse+I.cash-costs-I.reserve,left=Math.max(0,raw),canPut=Math.min(left,need-gUse);
+  return{T:T0,Tc:T,gUse,sl,st,costs,raw,left,canPut,extra:left-canPut,short:Math.max(0,need-gUse-canPut)}};
+ let G=mode==='mix'?Math.max(0,I.mixGift):0,c=core(G);
+ if(mode==='gift'){for(let i=0;i<60;i++){G=c.short+c.gUse;c=core(G)}G=c.gUse+c.short;c=core(G)}
+ R.gift=G;R.giftTx=c.T;R.giftUse=c.gUse;R.stampLoan=c.sl;R.stamp=c.st;R.costs=c.costs;R.lack=c.raw<0?-c.raw:0;R.left=c.left;
+ R.canPut=c.canPut;R.extra=c.extra;R.short=c.short;const cap=need-c.gUse;
+ R.loan=mode==='gift'?0:I.unit>0?Math.min(Math.ceil(R.short/I.unit-1e-9)*I.unit,cap):R.short;if(R.loan<R.short)R.loan=R.short;
+ R.roundUp=R.loan-R.short;R.put=R.canPut-R.roundUp;R.putJ=Math.min(I.jeonse,R.put);R.putC=R.put-R.putJ;
+ R.reserveTot=I.reserve+R.roundUp+R.extra;
+ R.ltvAmt=I.price*I.ltv/100;R.limit=Math.min(R.ltvAmt,I.cap);R.limitBy=R.ltvAmt<=I.cap?'비율 '+I.ltv+'%':'상한';
+ R.bankM=pmt(R.loan,I.rate,I.years);R.momM=I.mom*I.repay/100/12;R.dadM=I.dad*I.repay/100/12;R.famM=R.momM+R.dadM;
+ R.totM=R.bankM+R.famM;R.pct=I.income>0?R.totM/I.income*100:0;
+ R.status=R.pct<=I.target?['목표 안','g']:R.pct<=60?['빠듯함','y']:['무리','r'];
+ R.base=Math.min(R.loan,I.tenure);R.sup=R.base*I.rate/100*.5/12*(1-I.tax/100);R.supTot=R.sup*24;
+ R.burden12=R.totM-R.sup;R.burden3=R.totM;R.rest12=I.income-R.burden12;R.rest3=I.income-R.burden3;
+ R.budget=I.income*I.target/100;R.bankCan=R.budget-R.famM;R.afford=Math.min(Math.max(0,pv(R.bankCan,I.rate,I.years)),I.cap);
+ R.view=R.left+fam+R.afford;R.viewRest=I.income-R.famM-pmt(R.afford,I.rate,I.years);
+ R.cmpLoan=mode==='bank'?R.loan:calc(Object.assign({},I,{mode:'bank'})).cmpLoan;
+ R.giftAmt=I.giftAuto?Math.max(0,R.cmpLoan):I.gift;
+ const L=R.cmpLoan,iA=cumInt(L,I.rate,I.years,1e9),mA=pmt(L,I.rate,I.years);R.bankOnly={loan:L,m:mA,iAll:iA};
+ const g=a=>{const tax=giftTax(a,I.giftDed),lb=Math.max(0,L-a+Math.max(0,tax-I.taxCash)),sv=m=>cumInt(L,I.rate,I.years,m)-cumInt(lb,I.rate,I.years,m)-tax,n=Math.round(I.years*12);
+  let be='없음';if(tax<=0)be='처음부터';else for(let i=1;i<=n;i++){if(sv(i)>0){be=i<12?i+'개월':(i/12).toFixed(1)+'년';break}}
+  const iB=cumInt(lb,I.rate,I.years,1e9);return{amt:a,tax,loanB:lb,mB:pmt(lb,I.rate,I.years),mDown:mA-pmt(lb,I.rate,I.years),iB,costB:iB+tax,s5:sv(60),s10:sv(120),sAll:sv(1e9),be,over:a>L+0.5}};
+ R.g=g(R.giftAmt);
+ let z=L;for(let i=0;i<60;i++)z=L+Math.max(0,giftTax(z,I.giftDed)-I.taxCash);R.zero=L>0.5?g(Math.ceil(z)):null;
+ const am=[I.giftDed,5000,L*.25,L*.5,L*.75,L].map(x=>Math.round(x)).filter(x=>x>0&&L>0.5);
+ R.gRows=[...new Set(am)].map(g);if(R.giftAmt>0&&!R.gRows.some(x=>x.amt===Math.round(R.giftAmt)))R.gRows.push(R.g);if(R.zero&&!R.gRows.some(x=>x.amt===R.zero.amt))R.gRows.push(R.zero);R.gRows.sort((a,b)=>a.amt-b.amt);
+ R.plan=[['자기자금·금융기관 예금 등','예금·주식 등',R.putC,'잔고증명서, 주식 거래내역서'],['자기자금·부동산 처분대금 등','지금 집 전세보증금',R.putJ,'지금 집 임대차계약서'],['자기자금·증여·상속','부모님 증여 (증여세 신고)',R.giftUse,'증여세 신고서, 부모님 계좌 송금내역'],['차입금·금융기관 대출','주택담보대출',R.loan,'대출 신청서 또는 승인서'],['차입금·그 밖의 차입금','엄마 무이자 차용',I.mom,'차용증, 엄마 계좌 송금내역'],['차입금·그 밖의 차입금','아빠 무이자 차용',I.dad,'차용증, 아빠 계좌 송금내역']];
+ R.planTot=R.plan.reduce((s,x)=>s+x[2],0);R.planDiff=R.planTot-I.price;
+ const W=[],won=v=>fmtE(v);
+ if(R.lack>0.5)W.push(['r','내 돈이 부대비용과 비상금을 내기에 '+won(R.lack)+' 모자랍니다.']);
+ if(R.roundUp>0.5)W.push(['g','단위 올림으로 '+won(R.roundUp)+'을 더 빌려 비상금에 더했습니다. 비상금 합계 '+won(R.reserveTot)+'.']);
+ if(R.loan<=0&&R.giftUse<=0)W.push(['g','가족 차용과 내 돈으로 매매가가 다 채워져 은행 대출이 필요 없습니다.']);
+ if(R.planDiff<-0.5)W.push(['r','자금조달계획서 합계가 매매가보다 '+won(-R.planDiff)+' 모자랍니다.']);
+ else if(R.planDiff>0.5)W.push(['y','자금조달계획서 합계가 매매가보다 '+won(R.planDiff)+' 많습니다.']);
+ if(R.loan>R.limit+0.5)W.push(['r','은행 대출('+won(R.loan)+')이 한도('+won(R.limit)+')보다 많습니다.']);
+ for(const [n,v] of [['엄마',I.mom],['아빠',I.dad]]){if(v>1000/0.046)W.push(['r',n+' 차용 '+won(v)+': 약 2억 1,739만을 넘습니다. 넘는 부분은 이자를 정해야 증여로 안 봄.']);else if(v>20000)W.push(['y',n+' 차용 '+won(v)+': 2억 이하로 여유 두기.'])}
+ if(fam>0&&I.repay<=0)W.push(['r','가족 차용이 있는데 원금 상환 %가 0입니다. 증여로 봄.']);
+ else if(fam>0&&100/I.repay>25)W.push(['y','상환 기간이 '+fmtY(100/I.repay)+'년으로 25년을 넘습니다. 실제로 갚을 돈인지 의심받기 쉬움.']);
+ if(R.pct>60)W.push(['r','매달 나가는 돈이 실수령의 '+R.pct.toFixed(1)+'%로 60%를 넘습니다.']);else if(R.pct>I.target)W.push(['y','매달 나가는 돈이 실수령의 '+R.pct.toFixed(1)+'%로 목표 '+I.target+'%를 넘습니다.']);
+ if(R.gift>0)W.push(['y','증여 '+won(R.gift)+(R.giftTx>0.5?', 증여세 '+fmt(R.giftTx)+'만: 증여받은 달 말일부터 3개월 안에 신고·납부':': 공제 안이라 세금은 없지만 증여받은 달 말일부터 3개월 안에 신고')+' (확인 필요). 10년 안 이전 증여와 합산됩니다.']);
+ if(R.sup>0)W.push(['y','회사 이자지원: 대출 시작 후 6개월 안에 신청, 2년 뒤 매달 '+fmtM(R.sup)+'만원 늘어남.']);
+ if(!W.length)W.push(['g','걸리는 항목이 없습니다.']);
+ R.warns=W;R.fs=fsCalc(I,R);return R}
+function fsCalc(I,R){
+ const left=Math.max(0,I.jeonse+I.cash-R.noStamp-I.reserve),need=Math.max(0,I.price-left),mkt=Math.max(0.01,I.fsMkt),lim=1000/(mkt/100);
+ const free=Math.min(Math.max(0,I.fsFree),need),ded=Math.min(I.giftDed,need-free),X=Math.max(0,need-free-ded),rp=I.repay>0?I.repay:5,yrs=100/rp,NF=Math.round(yrs*12),N=I.fsTerm>0?Math.min(NF,Math.round(I.fsTerm*12)):NF,TY=N/12;
+ const fam=L=>L*rp/100/12,inc=Math.max(I.income,1e-9),pct=m=>m/inc*100;
+ const ball=L=>Math.max(0,L-L/NF*N),sched=(L,r)=>{let b=L,c=[0];const pr=L/NF;for(let i=0;i<N;i++){c.push(c[i]+b*r/1200);b-=pr}return c};
+ const lv=p=>p<=I.target?'g':p<=60?'y':'r',sv=b=>N>0?b/N:0;
+ // A
+ let G=ded+X;for(let i=0;i<60;i++)G=ded+X+Math.max(0,giftTax(G,I.giftDed)-I.taxCash);
+ const tA=giftTax(G,I.giftDed),mA=fam(free);
+ // B
+ const LB=free+X,rmin=LB>0?Math.max(0,mkt-1000/LB*100):0,rB=I.fsRate>0?I.fsRate:(rmin>0?Math.round((rmin+0.3)*100)/100:0),cB=sched(LB,rB),iB=cB[N],mB=fam(LB)+LB*rB/1200;
+ const tB0=giftTax(ded,I.giftDed);
+ let be=null;if(rB>0)for(let m=1;m<=N;m++)if(cB[m]>tA-tB0){be=m;break}
+ // C
+ const cC=Math.min(X,lim),bankC=X-cC,mC=fam(free)+fam(cC)+pmt(bankC,I.rate,I.years),iC=cumInt(bankC,I.rate,I.years,1e9);
+ const bal=(P,m)=>{const r=I.rate/1200,M=pmt(P,I.rate,I.years);let b=P;for(let i=0;i<m;i++)b-=M-b*r;return Math.max(0,b)};
+ // M
+ const G2=Math.min(I.giftDed+10000,ded+X+giftTax(I.giftDed+10000,I.giftDed)),t2=giftTax(G2,I.giftDed),b2=Math.max(0,X+ded-(G2-t2)),mM=fam(free)+pmt(b2,I.rate,I.years),iM=cumInt(b2,I.rate,I.years,1e9);
+ // D
+ const mD=fam(free)+pmt(X,I.rate,I.years),iD=cumInt(X,I.rate,I.years,1e9);
+ const who=I.fsLender==='dad'?'아빠':'엄마',oth=I.fsLender==='dad'?'엄마':'아빠';
+ const rows=[
+  {k:'A',t:'나머지 증여',how:`${who} 무이자 ${fmtE(free)} + 증여 ${fmtE(G)} (공제 ${fmtE(ded)} 포함, 세금까지)`,cost:tA,cl:'증여세',m:mA,bl:ball(free),c5:tA,lb:0,back:'증여분은 안 갚음 · 차용 '+fmtE(free)+'만 갚음'+(N<NF?' ('+fmtY(TY)+'년 뒤 일시상환)':''),w:''},
+  {k:'B',t:'같은 분 추가 차용 + 이자',how:`${who}에게 총 ${fmtE(LB)} 차용, 이자율 ${rB.toFixed(2)}% (최소 ${rmin.toFixed(2)}%) + 증여 ${fmtE(ded)}`,cost:iB+tB0,cl:'이자 총액',m:mB,bl:ball(LB),c5:cB[N],lb:0,back:N<NF?fmtY(TY)+'년 분할 후 만기 일시상환':'전부 갚음 ('+fmtY(yrs)+'년)',w:(rB<rmin-1e-9?'이자율이 최소보다 낮아 증여로 볼 수 있습니다. ':'')+`부모님 이자소득세 약 ${fmt(iB*I.fsITax/100)}만 (확인 필요). 이자는 매달 계좌이체로 실제 지급.`},
+  {k:'②',t:'증여 10% 구간까지 + 은행',how:`${who} 무이자 ${fmtE(free)} + 증여 ${fmtE(G2)} (과세표준 1억까지, 세금은 내 돈에서) + 은행 ${fmtE(b2)}`,cost:t2+iM,cl:'증여세 '+fmt(t2)+' + 은행 이자',m:mM,bl:ball(free),c5:t2+cumInt(b2,I.rate,I.years,N),lb:bal(b2,N),back:'증여분은 안 갚음 · 은행·차용 갚음',w:b2>R.limit+0.5?'은행 대출이 한도 '+fmtE(R.limit)+'를 넘습니다 (은행 확인 필요).':''},
+  {k:'D',t:'은행 대출',how:`${who} 무이자 ${fmtE(free)} + 은행 ${fmtE(X)} + 증여 ${fmtE(ded)}`,cost:iD+tB0,cl:'은행 이자',m:mD,bl:ball(free),c5:cumInt(X,I.rate,I.years,N),lb:bal(X,N),back:'전부 갚음',w:(X>R.limit+0.5?'은행 대출 '+fmtE(X)+'이 한도 '+fmtE(R.limit)+'를 넘습니다 (은행 확인 필요). ':'')+'회사 이자지원은 빼고 계산했습니다.'}];
+ for(const r of rows){r.sv=sv(r.bl);r.p=pct(r.m);r.p2=pct(r.m+r.sv);r.rest=I.income-r.m;r.lv=lv(r.p);r.lv2=r.bl>0.5&&I.fsSrc==='save'?lv(r.p2):r.lv}
+ return{left,need,free,ded,X,lim,mkt,rmin,rB,LB,G,tA,iB,be,N,NF,TY,rows,yrs}}
+function fmt(v,d=0){const x=Math.abs(v)<0.5*Math.pow(10,-d)?0:v;return x.toLocaleString('ko-KR',{minimumFractionDigits:d,maximumFractionDigits:d})}
+function fmtM(v){return fmt(v,1)}
+function fmtY(v){return Number.isInteger(Math.round(v*10)/10)?String(Math.round(v)):(Math.round(v*10)/10).toFixed(1)}
+function fmtE(v){const neg=v<0,a=Math.round(Math.abs(v));let s;if(a>=10000){const e=Math.floor(a/10000),r=a%10000;s=e+'억'+(r?' '+r.toLocaleString('ko-KR')+'만':'')}else s=a.toLocaleString('ko-KR')+'만';return(neg?'−':'')+s}
+</script>
+
+<script>
+{
+const KEY='anyang-home-calc-v1',ids=Object.keys(DEF),$=id=>document.getElementById(id);
+const nums=ids.filter(k=>typeof DEF[k]==='number');
+function load(){let s={};try{s=JSON.parse(localStorage.getItem(KEY)||'{}')||{}}catch(e){}for(const k of ids){const v=k in s?s[k]:DEF[k],el=$(k);if(el.type==='checkbox')el.checked=!!v;else el.value=v}$('repayR').value=$('repay').value}
+function read(){const I={};for(const k of ids){const el=$(k);I[k]=el.type==='checkbox'?el.checked:typeof DEF[k]==='string'?(el.value||DEF[k]):(parseFloat(el.value)||0)}return I}
+function save(I){try{localStorage.setItem(KEY,JSON.stringify(I))}catch(e){}}
+const TK=KEY+'-t',touch=()=>{try{localStorage.setItem(TK,Date.now())}catch(e){}if(window.CPush)CPush()};
+window.CALC={get:()=>({s:JSON.stringify(read()),t:+(localStorage.getItem(TK)||0)}),apply(o){try{localStorage.setItem(KEY,o.s);localStorage.setItem(TK,o.t)}catch(e){}load();render()}};
+const n0=v=>`<span class="num">${fmt(v)}</span>`;
+const B=(c,t)=>`<span class="badge ${c}">${t}</span>`;
+const row=(cells,cls='')=>`<tr class="${cls}">${cells.map(c=>Array.isArray(c)?`<td class="n">${c[0]}</td>`:`<td>${c}</td>`).join('')}</tr>`;
+function render(){
+ const I=read();save(I);const R=calc(I);
+ $('repayDesc').textContent=I.repay>0?`매년 원금의 ${fmtY(I.repay)}% → ${fmtY(100/I.repay)}년에 다 갚음`:'상환하지 않음';
+ $('loanAuto').textContent=fmtE(R.loan);
+ {const F=R.fs;$('fsLim').textContent='무이자 한도 약 '+fmtE(F.lim)+' (1천만 ÷ '+F.mkt+'%)'+(I.fsFree>F.lim?' · 한도 초과!':'');$('fsTermD').textContent=F.N<F.NF?fmtY(F.TY)+'년 동안 '+fmtY(F.TY*I.repay)+'% 갚고 나머지 일시상환':'만기 없음 → 끝까지 분할 상환';$('fsRateD').textContent=F.rmin>0?'최소 '+F.rmin.toFixed(2)+'% → 비우면 '+(Math.round((F.rmin+0.3)*100)/100).toFixed(2)+'%':'총 차용이 한도 안이라 이자 없어도 됨';}
+ for(const b of document.querySelectorAll('.seg button'))b.setAttribute('aria-pressed',b.dataset.m===I.mode);
+ $('mixBox').style.display=I.mode==='mix'?'':'none';
+ $('modeDesc').textContent=I.mode==='gift'?'모자라는 돈을 은행 대신 부모님 증여로 채웁니다. 증여세는 내 돈에서 냅니다.':I.mode==='mix'?'아래 금액만 증여받고, 나머지 모자라는 돈은 은행 대출로 채웁니다.':'모자라는 돈을 은행 주택담보대출로 채웁니다.';
+ const GM=I.mode==='gift';$('gift').disabled=I.giftAuto;if(I.giftAuto)$('gift').value=Math.round(R.loan);
+ const inc=Math.max(I.income,1e-9),w=v=>Math.max(0,Math.min(100,v/inc*100)).toFixed(2)+'%',rest=I.income-R.totM;
+ const costRows=[
+  ['취득세',`매매가 × ${R.acqRate.toFixed(2)}%`,R.acq,'잔금일'],
+  ['지방교육세','취득세 × 10%',R.edu,'잔금일'],
+  ['농어촌특별세','매매가 × 0.2% (85㎡ 초과)',R.agri,'잔금일'],
+  ['생애최초 감면','취득세에서 최대 200만 (12억 이하)',R.relief,'잔금일'],
+  ['중개보수',`매매가 × ${R.brokerRate}% (상한)`,R.broker,'계약·잔금 때 나눠서'],
+  ['중개보수 부가세','중개보수 × 10%',R.vat,'잔금일'],
+  ['대출 인지세',`대출 추정 ${fmtE(R.stampLoan)} 기준, 본인 부담 절반`,R.stamp,'대출 실행일'],
+  ['증여세',`(증여 ${fmtE(R.gift)} − 공제 ${fmt(I.giftDed)}) × 세율 × 97%`,R.giftTx,'증여받은 달 말일부터 3개월 안 (확인 필요)'],
+  ['법무사·등기 수수료','직접 입력',I.lawyer,'잔금일'],
+  ['국민주택채권 할인비용','직접 입력',I.bond,'잔금일'],
+  ['이사비','직접 입력',I.move,'이삿날'],
+  ['세무사 상담','직접 입력',I.taxpro,'계약 전'],
+  ['차용증 확정일자·공증','직접 입력 (2부 기준)',I.notary,'부모님 송금 전'],
+  ['도배·바닥','직접 입력',I.floor,'잔금 전후'],
+  ['가전·가구','직접 입력',I.appl,'입주 전후']].filter(x=>Math.abs(x[2])>=0.05);
+ const same=Math.abs(R.planDiff)<0.5;
+ const y=fmtY(I.years),rp=I.repay>0?fmtY(100/I.repay):'—';
+ $('out').innerHTML=`
+<section><h2>한눈에 보기</h2>
+<div class="cards">
+ <div class="card"><div class="l">${GM?'증여 받을 금액':'은행 대출 필요액'}</div><div class="big">${fmtE(GM?R.gift:R.loan)}</div><div class="s">${GM?'증여세 '+fmt(R.giftTx)+'만 (내 돈으로 냄)':(R.gift>0?'증여 '+fmtE(R.gift)+' (세금 '+fmt(R.giftTx)+') · ':'')+'한도 '+fmtE(R.limit)+' ('+R.limitBy+')'}</div></div>
+ <div class="card"><div class="l">매달 나가는 돈</div><div class="big">${fmtM(R.totM)}만</div><div class="s">은행 ${fmtM(R.bankM)} + 가족 ${fmtM(R.famM)}</div></div>
+ <div class="card"><div class="l">실수령 대비</div><div class="big">${R.pct.toFixed(1)}%</div><div class="s">${B(R.status[1],R.status[0])} 목표 ${I.target}%</div></div>
+ <div class="card hi"><div class="l">매달 생활비로 남는 월급</div><div class="big">${fmtM(rest)}만</div><div class="s">월 실수령 ${fmt(I.income)}만 기준</div></div>
+</div>
+<div class="bar" role="img" aria-label="월 실수령 구성"><div style="width:${w(R.bankM)};background:var(--c1)"></div><div style="width:${w(R.famM)};background:var(--c2)"></div></div>
+<div class="leg"><span><i style="background:var(--c1)"></i>은행 원리금 ${fmtM(R.bankM)}</span><span><i style="background:var(--c2)"></i>엄마·아빠 상환 ${fmtM(R.famM)}</span><span><i style="background:var(--c3);outline:1px solid var(--line)"></i>남는 돈 ${fmtM(rest)}</span></div>
+<ul class="warns">${R.warns.map(x=>`<li class="${x[0]}">${x[1]}</li>`).join('')}</ul>
+</section>
+
+<section><h2>매달 남는 월급</h2>
+<div class="scroll"><table><thead><tr><th></th><th class="n">1~2년차</th><th class="n">3년차부터</th></tr></thead><tbody>
+${row(['월 실수령',[fmtM(I.income)],[fmtM(I.income)]])}
+${row(['은행 원리금',['−'+fmtM(R.bankM)],['−'+fmtM(R.bankM)]])}
+${row(['엄마·아빠 상환',['−'+fmtM(R.famM)],['−'+fmtM(R.famM)]])}
+${row(['회사 이자지원',['+'+fmtM(R.sup)],['0.0']])}
+${row(['생활비로 남는 월급',[fmtM(R.rest12)],[fmtM(R.rest3)]],'tot')}
+</tbody></table></div>
+<p class="note">3년차부터는 회사 이자지원이 끝납니다. 연봉 인상은 반영하지 않았습니다.</p>
+</section>
+
+<section><h2>${GM?'증여 필요액 계산':I.mode==='mix'?'은행 대출 필요액 계산 (증여 섞기)':'은행 대출 필요액 계산'}</h2>
+<div class="scroll"><table><tbody>
+${row(['매매가',[fmt(I.price)]])}
+${row(['가족 무이자 차용 (엄마 '+fmtE(I.mom)+' + 아빠 '+fmtE(I.dad)+')',['−'+fmt(R.fam)]])}
+${R.giftUse>0&&!GM?row(['부모님 증여'+(R.giftTx>0.5?' (증여세 '+fmt(R.giftTx)+'은 부대비용에 포함)':' (공제 안이라 증여세 0)'),['−'+fmt(R.giftUse)]]):''}
+${row(['남은 내 돈 (보증금 '+fmt(I.jeonse)+' + 예금 '+fmt(I.cash)+' − 부대비용 '+fmt(R.costs)+' − 비상금 '+fmt(I.reserve)+')'+(R.extra>0.5?', 매매대금에 넣는 건 '+fmt(R.canPut):''),['−'+fmt(R.canPut)]])}
+${row(['모자라는 돈',[fmt(GM?R.gift:R.short)]])}
+${GM?row(['증여 받을 금액 (증여세 '+fmt(R.giftTx)+'은 부대비용에 포함)',[fmt(R.gift)]],'tot'):''}
+${GM?'':row(['단위로 올림 ('+(I.unit>0?fmt(I.unit)+'만 단위':'올림 안 함')+')',['+'+fmt(R.roundUp)]])}
+${GM?'':row(['은행 대출 받을 금액',[fmt(R.loan)]],'tot')}
+${row(['비상금 합계 (비상금 '+fmt(I.reserve)+' + 올림분 '+fmt(R.roundUp)+(R.extra>0.5?' + 못 넣고 남는 돈 '+fmt(R.extra):'')+')',[fmt(R.reserveTot)]])}
+</tbody></table></div>
+</section>
+
+<section><h2>매매가 말고 따로 드는 돈 (부대비용)</h2>
+<table class="stack"><thead><tr><th>항목</th><th>계산 방법</th><th class="n">금액</th><th>언제 내나</th></tr></thead><tbody>
+${costRows.map(x=>row([x[0],x[1],[fmt(x[2])],x[3]])).join('')}
+${row(['합계','',[fmt(R.costs)],''],'tot')}
+</tbody></table>
+<p class="note">1주택 기준 세율입니다. 생애최초 감면은 적용 조건 확인이 필요합니다. 중개보수는 상한이라 협의할 수 있습니다.</p>
+</section>
+
+<section><h2>자금조달계획서에 적을 금액</h2>
+<table class="stack"><thead><tr><th>서식 칸</th><th>내용</th><th class="n">금액</th><th>증빙서류</th></tr></thead><tbody>
+${R.plan.filter(x=>Math.abs(x[2])>=0.5).map(x=>row([x[0],x[1],[fmt(x[2])],x[3]])).join('')}
+${row(['합계',same?B('g','매매가와 같음'):B('r','매매가와 다름'),[fmt(R.planTot)],''],'tot')}
+</tbody></table>
+<p class="note">입주계획은 본인 입주. 계약일로부터 30일 안에 실거래 신고와 함께 제출합니다.</p>
+</section>
+
+<section><h2>매달 갚을 돈</h2>
+<table class="stack"><thead><tr><th>누구에게</th><th class="n">원금</th><th>방식</th><th class="n">매달</th></tr></thead><tbody>
+${R.loan<=0?'':row(['은행',[fmt(R.loan)],`연 ${I.rate.toFixed(2)}%, ${y}년, 원리금 같은 금액`,[fmtM(R.bankM)]])}
+${row(['엄마',[fmt(I.mom)],`무이자, 매년 원금 ${fmtY(I.repay)}% (연 ${fmt(I.mom*I.repay/100)}), ${rp}년`,[fmtM(R.momM)]])}
+${row(['아빠',[fmt(I.dad)],`무이자, 매년 원금 ${fmtY(I.repay)}% (연 ${fmt(I.dad*I.repay/100)}), ${rp}년`,[fmtM(R.dadM)]])}
+${row(['합계',[fmt(R.loan+R.fam)],'',[fmtM(R.totM)]],'tot')}
+</tbody></table>
+</section>
+
+<section><h2>회사 이자지원</h2>
+<div class="cards">
+ <div class="card"><div class="l">매달 지원받는 돈</div><div class="big">${fmtM(R.sup)}만</div><div class="s">${fmt(R.base)} × ${I.rate.toFixed(2)}% × 50% ÷ 12${I.tax>0?' × (1 − '+I.tax+'%)':''}</div></div>
+ <div class="card"><div class="l">2년 동안 총액</div><div class="big">${fmt(R.supTot)}만</div><div class="s">24회</div></div>
+ <div class="card"><div class="l">1~2년차 매달 부담</div><div class="big">${fmtM(R.burden12)}만</div><div class="s">실수령 대비 ${(R.burden12/inc*100).toFixed(1)}% · 3년차부터 ${fmtM(R.burden3)}만</div></div>
+</div>
+<div style="margin-top:12px"><table class="stack"><thead><tr><th>기간</th><th class="n">은행+가족</th><th class="n">회사 지원</th><th class="n">실제 부담</th><th class="n">실수령 대비</th><th class="n">남는 월급</th></tr></thead><tbody>
+${row(['1~2년차',[fmtM(R.totM)],['−'+fmtM(R.sup)],[fmtM(R.burden12)],[(R.burden12/inc*100).toFixed(1)+'%'],[fmtM(R.rest12)]])}
+${row(['3년차부터',[fmtM(R.totM)],['0.0'],[fmtM(R.burden3)],[(R.burden3/inc*100).toFixed(1)+'%'],[fmtM(R.rest3)]])}
+</tbody></table></div>
+<p class="note">근속 1년 이상, 배우자 포함 최근 2년 무주택, 대출 시작 후 6개월 안에 신청, 재직 중 2회까지. 매월 9일까지 신청하면 그달 급여에 반영됩니다. 변동금리라도 최초 금리로 고정 지원합니다. 2금융권은 금리 상한이 있습니다.</p>
+</section>
+
+<section><h2>증여 vs 은행 대출</h2>
+<p class="sent">${R.giftAmt<=0.5||R.loan<=0.5?'은행 대출이 없어서 비교할 게 없습니다.':R.g.sAll<=0.5?`${y}년 다 갖고 있어도 <b>은행이 ${fmt(-R.g.sAll)}만 이득</b>입니다.`:R.g.be==='처음부터'?`증여세가 없어서 <b>증여가 처음부터 이득</b>입니다. ${y}년 다 갖고 있으면 ${fmt(R.g.sAll)}만 아낍니다.`:`${y}년 다 갖고 있으면 <b>증여가 ${fmt(R.g.sAll)}만 이득</b>. ${R.g.be} 안에 대출을 다 갚을 거면 은행이 이득.`}</p>
+<div class="cards">
+ <div class="card"><div class="l">은행만</div><div class="big">${fmt(R.bankOnly.iAll)}만</div><div class="s">총이자 · 대출 ${fmtE(R.bankOnly.loan)} · 매달 ${fmtM(R.bankOnly.m)}만</div></div>
+ <div class="card"><div class="l">${fmtE(R.giftAmt)} 증여 섞기</div><div class="big">${fmt(R.g.costB)}만</div><div class="s">증여세 ${fmt(R.g.tax)} + 총이자 ${fmt(R.g.iB)} · 남는 대출 ${fmtE(R.g.loanB)} · 매달 ${fmtM(R.g.mB)}만</div></div>
+ <div class="card"><div class="l">아끼는 돈 (${y}년 다 갚을 때)</div><div class="big">${fmt(R.g.sAll)}만</div><div class="s">5년 ${fmt(R.g.s5)} · 10년 ${fmt(R.g.s10)}</div></div>
+ <div class="card hi"><div class="l">본전 시점</div><div class="big">${R.g.be}</div><div class="s">이보다 오래 대출을 갖고 있으면 증여가 쌉니다</div></div>
+</div>
+${R.gRows.length?`<div style="margin-top:12px"><table class="stack gt"><thead><tr><th class="n">증여 금액</th><th class="n">증여세</th><th class="n">증여 후 남는 대출</th><th class="n">매달 줄어드는 원리금</th><th class="n">아끼는 돈 5년</th><th class="n">10년</th><th class="n">전체 기간</th><th class="n">본전 시점</th><th class="n">더 이득</th></tr></thead><tbody>
+${R.gRows.map(x=>row([[fmtE(x.amt)+(R.zero&&x.amt===R.zero.amt?'<br>'+B('g','대출 0'):x.over?'<br>'+B('y','대출보다 많음'):'')],[fmt(x.tax)],[fmt(x.loanB)],[fmtM(x.mDown)],[fmt(x.s5)],[fmt(x.s10)],[fmt(x.sAll)],[x.be],[x.sAll>0.5?B('g','증여 '+fmt(x.sAll)+'만'):B('y','은행 '+fmt(-x.sAll)+'만')]],x.amt===Math.round(R.giftAmt)?'em':'')).join('')}
+</tbody></table></div>`:'<p class="note">은행 대출이 없어서 비교할 금액이 없습니다.</p>'}
+${R.zero?`<p class="sent">은행 대출을 0으로 만들려면 증여를 <b>${fmtE(R.zero.amt)}</b> 받으면 됩니다. 증여세 ${fmt(R.zero.tax)}만${I.taxCash>=R.zero.tax?'은 따로 모아 둔 현금으로 냅니다.':I.taxCash>0?` 중 ${fmt(I.taxCash)}만은 따로 모아 둔 현금으로, 나머지는 증여받은 돈에서 냅니다.`:'은 증여받은 돈에서 냅니다.'}</p>`:''}
+<p class="note">증여세는 내 돈에서 먼저 냅니다. 내 돈이 이미 집값에 다 들어가 있으면 세금만큼 집값에 구멍이 생겨서, 증여를 더 받거나 대출로 메워야 합니다. 이 표는 모자란 만큼을 대출로 메운다고 보고 계산했습니다 (남는 대출 = 대출 − 증여 + 증여세 − 세금 낼 현금). '대출 0' 줄이 세금까지 포함해서 증여로 다 채우는 금액입니다. 아끼는 돈 = 은행만일 때 이자 − 증여 섞을 때 이자 − 증여세. 표의 행은 공제 남은 금액, 5,000만, 대출의 25·50·75·100%입니다. 대출을 본전 시점보다 일찍 다 갚을 거면 은행이, 아니면 증여가 쌉니다. 증여는 부모님 돈이 돌아오지 않습니다. 10년 안의 이전 증여 합산, 혼인 공제 등은 세무사에게 확인하세요.</p>
+</section>
+
+<section><h2>가족 자금 구조 비교 (1명 차용)</h2>
+${(()=>{const F=R.fs;if(F.X<=0.5)return '<p class="sent">무이자 차용과 증여 공제만으로 충분해서 나머지 금액이 없습니다.</p>';
+const bey=F.be?(F.be<12?F.be+'개월':(F.be/12).toFixed(1)+'년'):null;
+return `<p class="sent">내 돈 ${fmtE(F.left)}, 무이자 ${fmtE(F.free)}, 증여 공제 ${fmtE(F.ded)}를 넣고 <b>나머지 ${fmtE(F.X)}</b>을 어떻게 채울지 비교합니다.</p>
+<p class="sent">${F.rB<=0?'B안은 총 차용이 한도 안이라 이자가 없어서 <b>B가 유리</b>합니다.':bey?`B안 이자 누적이 A안 증여세 ${fmt(F.tA)}만을 넘는 건 <b>${bey}</b>째입니다. <b>그 전에 차용을 다 갚으면 B, 더 오래 갖고 있으면 A</b>가 쌉니다.`:`${F.N<F.NF?fmtY(F.TY)+'년 만기까지':fmtY(F.yrs)+'년 다 갚아도'} B안 이자가 A안 증여세보다 적어서 <b>B가 유리</b>합니다.`}</p>
+<table class="stack"><thead><tr><th>안</th><th>채우는 방법</th><th class="n">세금·이자 총액</th><th class="n">${fmtY(F.TY)}년까지 비용</th><th class="n">매달 나가는 돈</th><th class="n">실수령 대비</th><th class="n">남는 월급</th><th class="n">만기 일시상환</th><th>원금</th></tr></thead><tbody>
+${F.rows.map(r=>row(['<b>'+r.k+'</b> '+r.t,r.how+(r.w?'<br><small>'+B('g','주의')+' '+r.w+'</small>':''),[fmt(r.cost)+'<br><small>'+r.cl+'</small>'],[fmt(r.c5)+(r.lb>0.5?'<br><small>은행 '+fmt(r.lb)+' 남음</small>':'')],[fmtM(r.m)+'만'],[B(r.lv,r.p.toFixed(0)+'%')],[fmtM(r.rest)+'만'],[r.bl>0.5?fmt(r.bl)+'<br><small>'+(I.fsSrc==='save'?'매달 '+fmtM(r.sv)+'만 모으면 '+r.p2.toFixed(0)+'%':'집 팔아서 상환')+'</small>':'-'],r.back])).join('')}
+</tbody></table>
+${I.fsSrc==='sell'&&F.rows.some(r=>r.bl>0.5)?`<p class="sent">${B('y','만기 상환')} 만기(${fmtY(F.TY)}년)에 남은 차용금은 집을 팔아서 갚는 계획입니다. 이 계획이 상환능력으로 인정되는지, 만기에 집을 안 팔면 어떻게 되는지는 세무사 확인 필요입니다.</p>`:''}
+${I.fsSrc==='save'&&F.rows.some(r=>r.bl>0.5&&r.lv2==='r')?`<p class="sent">${B('r','만기 상환 경고')} ${F.rows.filter(r=>r.bl>0.5&&r.lv2==='r').map(r=>r.k+'안 '+fmtE(r.bl)).join(', ')}을 만기에 한 번에 갚아야 합니다. 매달 상환액에 모을 돈까지 더하면 실수령의 60%를 넘어서, 만기에 못 갚으면 차용을 증여로 볼 위험이 있습니다 (확인 필요).</p>`:''}
+${F.rows.some(r=>r.lv==='r')?`<p class="sent">${B('r','상환능력 경고')} ${F.rows.filter(r=>r.lv==='r').map(r=>r.k).join(', ')}안은 매달 나가는 돈이 실수령의 60%를 넘습니다. 갚을 능력이 부족하면 차용을 증여로 볼 위험이 있습니다 (확인 필요).</p>`:F.rows.some(r=>r.lv==='y')?`<p class="sent">${B('y','빠듯함')} ${F.rows.filter(r=>r.lv==='y').map(r=>r.k).join(', ')}안은 목표 ${I.target}%를 넘습니다.</p>`:''}
+<p class="note">매달 나가는 돈은 첫해 기준입니다 (차용 원금 매년 ${fmtY(I.repay||5)}% + 이자, 만기에 남은 원금 일시상환, 은행은 원리금균등). B안 이자는 원금이 줄면서 같이 줄어듭니다. 최소 이자율 = 적정이자율 − 1천만 ÷ 총 차용액, 이자는 초과분이 아니라 차용 전체에 붙습니다. 세금·이자 총액에는 증여 공제분 증여세(0)도 포함했습니다. 세법 해석(대여자별 합산, 이자소득세율, 적정이자율)은 확인 필요입니다.</p>`})()}
+</section>
+<section><h2>예산으로 볼 수 있는 집값</h2>
+<p class="sent">월 예산 <b>${fmt(R.budget)}만원</b> 안에서 은행 대출은 <b>${fmtE(R.afford)}</b>까지 감당할 수 있어 집값 약 <b>${fmtE(R.view)}</b>까지 볼 수 있습니다. 이때 생활비로 매달 <b>${fmtM(R.viewRest)}만원</b>이 남습니다.</p>
+<p class="note">구성: 남은 내 돈 ${fmtE(R.left)} + 가족 차용 ${fmtE(R.fam)} + 은행 ${fmtE(R.afford)}</p>
+</section>
+
+<footer>계산은 참고용 대략치입니다. 대출 한도와 규제는 자주 바뀌니 계약 전에 은행·중개사무소·세무사에게 확인하세요. 입력값은 이 기기에 저장되고, 클라우드 링크(#k=…)로 열면 Firebase에도 저장됩니다.</footer>`}
+load();render();
+$('form').addEventListener('input',e=>{if(e.target.id==='repayR')$('repay').value=e.target.value;if(e.target.id==='repay')$('repayR').value=e.target.value;render();touch()});
+$('form').addEventListener('change',()=>{render();touch()});
+for(const b of document.querySelectorAll('.seg button'))b.addEventListener('click',()=>{$('mode').value=b.dataset.m;render();touch()});
+$('reset').addEventListener('click',()=>{try{localStorage.removeItem(KEY)}catch(e){}load();render();touch()});
+}
+</script>
+<div id="csync" style="position:fixed;left:0;right:0;bottom:0;z-index:20;padding:6px max(4vw,16px) calc(6px + env(safe-area-inset-bottom));background:var(--bg);border-top:1px solid var(--line);font-size:13px;color:var(--mute)">불러오는 중…</div>
+<style>body{padding-bottom:52px}#csync[data-s=ok]{color:var(--ac)!important}#csync[data-s=bad]{color:#d9534f!important}</style>
+<script type="module">
+const V='https://www.gstatic.com/firebasejs/11.10.0/',KK='anyang-taxpro-pad',st=document.getElementById('csync');
+const say=(t,c)=>{st.textContent=t;st.dataset.s=c||''},hm=()=>new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
+let key=(location.hash.match(/k=([0-9a-f]{32,})/)||[])[1];
+try{if(key)localStorage.setItem(KK,key);else key=localStorage.getItem(KK)}catch(x){}
+if(!key)say('이 기기에만 저장 중. 클라우드 링크(#k=…)로 열면 Firebase에도 저장됩니다');
+else try{
+ if(!location.hash.includes(key))history.replaceState(null,'','#k='+key);
+ const [{initializeApp},F]=await Promise.all([import(V+'firebase-app.js'),import(V+'firebase-firestore.js')]);
+ const app=initializeApp({apiKey:"AIzaSyBrs4EjzSSICFxlWgazb_zyahEjiaVsRGg",authDomain:"house-plan-f67a7.firebaseapp.com",projectId:"house-plan-f67a7",storageBucket:"house-plan-f67a7.firebasestorage.app",messagingSenderId:"897737312298",appId:"1:897737312298:web:9d024c9495f10699465b53"});
+ const ref=F.doc(F.getFirestore(app),'pads',key+'c');let timer=null,busy=0;
+ const err=e=>say('클라우드 저장 실패, 이 기기에는 저장됨 ('+(e&&e.code||e)+')','bad');
+ async function push(){clearTimeout(timer);busy++;say('저장 중…');try{await F.setDoc(ref,window.CALC.get());if(!--busy)say('저장됨 '+hm()+' · 클라우드','ok')}catch(e){busy--;err(e)}}
+ window.CPush=()=>{say(navigator.onLine?'저장 중…':'인터넷 끊김, 이 기기에만 저장됨');clearTimeout(timer);timer=setTimeout(push,700)};
+ addEventListener('online',()=>push());
+ say('클라우드 불러오는 중…');
+ const d=await F.getDoc(ref),L=window.CALC.get();
+ if(d.exists()&&(d.data().t||0)>L.t){window.CALC.apply(d.data());say('클라우드에서 불러옴 '+hm(),'ok')}
+ else await push();
+ F.onSnapshot(ref,x=>{if(x.metadata.hasPendingWrites||!x.exists())return;if((x.data().t||0)>window.CALC.get().t){window.CALC.apply(x.data());say('다른 기기 값 반영 '+hm(),'ok')}},()=>{});
+}catch(e){say('클라우드 연결 실패 (인터넷 확인). 이 기기에는 저장됩니다','bad')}
+</script>
+</body>
+
+</html>
